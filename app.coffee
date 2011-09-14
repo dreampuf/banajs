@@ -1,0 +1,36 @@
+#
+# BanaJs
+# author : dreampuf(soddyque@gmail.com)
+#
+
+express = require('express')
+app = module.exports = express.createServer()
+admin_route = require('./route/admin_route')
+blog_route = require('./route/blog_route')
+
+# Configuration
+app.configure ()->
+  app.register ".html", require('tenjin')
+  app.set 'views', __dirname + '/views'
+  app.set('view engine', 'coffee')
+  app.register('.coffee', require('coffeekup').adapters.express)
+  app.use express.bodyParser()
+  app.use express.methodOverride()
+  app.use app.router
+  app.use express.static(__dirname + '/public')
+
+  app.set 'prodir', __dirname
+  app.admin_path = '/admin'
+
+app.configure 'development', ()->
+  app.use express.errorHandler({ dumpExceptions: true, showStack: true })
+
+app.configure 'production', ()->
+  #app.use(express.errorHandler())
+
+# Routes
+admin_route(app)
+blog_route(app)
+
+app.listen 8081
+console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
