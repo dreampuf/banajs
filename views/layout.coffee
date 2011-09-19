@@ -23,6 +23,15 @@ html ->
 
         a id: 'top', href: '#intro', title: 'Back to top', '#top'
         a id: 'hide_menu', class: 'tablet', 'Hide Menu'
+      if @menu?
+        for i in @menu
+          ul ->
+            li ->
+              h1 -> a href: i.href, "#{i.text}"
+              for j in i.items
+                li -> a href: j.href, "#{ j.text }"
+
+
 
     nav id: 'nav_mobile', ->
       a id: 'nav_prev_section', href: '#', ->

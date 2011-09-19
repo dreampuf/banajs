@@ -1,38 +1,58 @@
 (function() {
-  var AdminError, route, utils;
-  utils = require("util");
-  AdminError = function(msg, statuscode) {
-    if (msg == null) {
-      msg = "Error";
-    }
-    if (statuscode == null) {
-      statuscode = 400;
-    }
-    this.message = msg;
-    this.statuscode = statuscode;
-    this.name = "AdminError";
-    Error.call(this.name);
-    Error.captureStackTrace(this, arguments.callee);
-    return this;
+  var AdminError, helper, model, route, utils;
+  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
+    function ctor() { this.constructor = child; }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor;
+    child.__super__ = parent.prototype;
+    return child;
   };
-  utils.inherits(AdminError, Error);
+  utils = require("util");
+  model = require("../model");
+  helper = require("../helper");
+  AdminError = (function() {
+    __extends(AdminError, Error);
+    function AdminError(message, statuscode) {
+      this.message = message != null ? message : "Error";
+      this.statuscode = statuscode != null ? statuscode : 400;
+      this.name = "AdminError";
+      Error.call(this.name);
+      Error.captureStackTrace(this, arguments.callee);
+      this;
+    }
+    return AdminError;
+  })();
   route = module.exports = function(app) {
-    var admin_path, admin_validate;
+    var admin_menu, admin_path, admin_validate;
     admin_path = app.admin_path;
+    admin_menu = [
+      {
+        text: "管理",
+        href: "#",
+        items: [
+          {
+            text: "添加",
+            href: "" + admin_path + "/edit/"
+          }, {
+            text: "登出",
+            href: "" + admin_path + "/logout/"
+          }
+        ]
+      }
+    ];
     admin_validate = function(req, res, next) {
-      if (req.admin != null) {
+      console.log(req.session.admin);
+      if (req.session.admin != null) {
         return next();
       } else {
         return next(new AdminError("refuse access"));
       }
     };
     app.error(function(err, req, res, next) {
-      console.log("asdasd", err);
+      console.dir(err);
       if (err instanceof AdminError) {
-        return res.render("admin/error", {
-          error: err,
-          status: err.statuscode
-        });
+        return res.redirect("" + admin_path + "/login/");
       } else {
         return next(err);
       }
@@ -41,11 +61,45 @@
       return res.render("admin/login");
     });
     app.post("" + admin_path + "/login/", function(req, res) {
-      return res.redirect("/");
+      var email, pwd;
+      email = req.body.email;
+      pwd = req.body.pwd;
+      return model.User.check(email, helper.sha1(pwd), function(ok) {
+        if (ok) {
+          req.session.admin = ok[0];
+          return res.redirect("" + admin_path + "/");
+        } else {
+          return res.redirect("" + admin_path + "/login/");
+        }
+      });
     });
-    return app.get("" + admin_path + "/", admin_validate, function(req, res) {
-      return res.render("admin", {
+    app.get("" + admin_path + "/", admin_validate, function(req, res) {
+      return model.Content.get(function(rows) {
+        return res.render("admin/admin", {
+          menu: admin_menu,
+          ls: rows,
+          admin_path: admin_path,
+          format: true
+        });
+      });
+    });
+    app.get("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
+      return res.render("admin/edit", {
+        menu: admin_menu,
         format: true
+      });
+    });
+    return app.post("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
+      var pd;
+      pd = req.body;
+      return model.Content["new"]({
+        path: helper.randstr(5),
+        title: pd.title,
+        body: pd.content,
+        create: (new Date).getTime()
+      }, function(ret) {
+        console.log(ret);
+        return res.redirect("" + admin_path + "/");
       });
     });
   };

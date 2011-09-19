@@ -15,6 +15,10 @@ app.configure ()->
   app.set('view engine', 'coffee')
   app.register('.coffee', require('coffeekup').adapters.express)
   app.use express.bodyParser()
+  app.use express.cookieParser()
+  app.use express.session
+    key: "banajs"
+    secret: "banajs"
   app.use express.methodOverride()
   app.use app.router
   app.use express.static(__dirname + '/public')
