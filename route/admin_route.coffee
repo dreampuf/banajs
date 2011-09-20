@@ -27,7 +27,6 @@ route = module.exports = (app)->
     }]
   }]
   admin_validate = (req, res, next)->
-    console.log req.session.admin
     if req.session.admin?
       next()
     else
@@ -65,18 +64,51 @@ route = module.exports = (app)->
         format: true
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
-    res.render "admin/edit",
-      menu: admin_menu
-      format: true
+    if req.params.path
+      path = req.params.path
+      model.Content.get
+        path:path
+      , (rows)->
+        if rows.length > 0
+          res.render "admin/edit",
+            menu: admin_menu
+            content: rows[0]
+            format: true
+    else
+      res.render "admin/edit",
+        menu: admin_menu
+        format: true
 
   app.post "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
+    path = req.params.path
     pd = req.body
-    model.Content.new
-      path: helper.randstr 5
-      title: pd.title
-      body: pd.content
-      create: (new Date).getTime()
-    , (ret)->
-      console.log ret
-      res.redirect "#{admin_path}/"
+    if path
+      model.Content.get
+        path:path
+      , (rows)->
+        if rows.length > 0
+          ct = rows[0]
+          ct.title = pd.title
+          ct.body = pd.content
+          model.Content.set ct,(ret)->
+            if ret.changes == 1
+              res.redirect "#{admin_path}/"
+            else
+              throw new AdminError("bad changes")
+        else
+          model.Content.new
+            path: path
+            title: pd.title
+            body: pd.content
+            create: (new Date).getTime()
+          , (ret)->
+            res.redirect "#{admin_path}/"
+    else
+      model.Content.new
+        path: helper.randstr 5
+        title: pd.title
+        body: pd.content
+        create: (new Date).getTime()
+      , (ret)->
+        res.redirect "#{admin_path}/"
 

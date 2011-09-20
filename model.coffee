@@ -79,9 +79,9 @@ class BaseModel
           throw new ModelError "Table #{@_name} has a Constraint ModelError:\n #{vals}"
         else
           throw new ModelError err.message
-      cb(ret)
+      cb(this)
 
-  set:(p)->
+  set:(p, cb)->
     throw new ModelError("property MUST have '#{@primary_key}'") if p[@primary_key] == undefined
     
     id = p[@primary_key]
@@ -94,10 +94,12 @@ class BaseModel
       k = "'#{k}'" if k in special_field
       keys.push "#{k}=?"
       vals.push v
+    vals.push id
 
-    sql = "UPDATE #{@_name} SET #{keys.join(",")} WHERE #{@primary_key}=#{id}"
-    db.run sql,vals,(err, ret)->
+    sql = "UPDATE #{@_name} SET #{keys.join(",")} WHERE #{@primary_key}=?"
+    db.run sql,vals,(err)->
       throw new ModelError(err.message) if err
+      cb(this)
   
   del:(id)->
     sql = "DELETE FROM #{@_name} WHERE #{@primary_key}=#{id}"
@@ -159,6 +161,8 @@ if require.main == module #Unit Test
       password: helper.sha1 ["123", "231", "312"][helper.rand 3]
       last: (new Date).getTime()
       create: (new Date).getTime()
+    ,(obj)->
+      assert.equal obj.changes, 1
 
     model.User.count (ncount)->
       assert.equal ncount, count + 1, "Why count now (#{ncount}) not equal before count (#{count})?"

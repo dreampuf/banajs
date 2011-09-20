@@ -1,2 +1,6 @@
+@title = "BanaJS"
+h3 @title
 
-h3 "Hlllll"
+ul ->
+  for i in @ls
+    li -> p "#{i.content}"

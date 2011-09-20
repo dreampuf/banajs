@@ -42,7 +42,6 @@
       }
     ];
     admin_validate = function(req, res, next) {
-      console.log(req.session.admin);
       if (req.session.admin != null) {
         return next();
       } else {
@@ -84,23 +83,69 @@
       });
     });
     app.get("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
-      return res.render("admin/edit", {
-        menu: admin_menu,
-        format: true
-      });
+      var path;
+      if (req.params.path) {
+        path = req.params.path;
+        return model.Content.get({
+          path: path
+        }, function(rows) {
+          if (rows.length > 0) {
+            return res.render("admin/edit", {
+              menu: admin_menu,
+              content: rows[0],
+              format: true
+            });
+          }
+        });
+      } else {
+        return res.render("admin/edit", {
+          menu: admin_menu,
+          format: true
+        });
+      }
     });
     return app.post("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
-      var pd;
+      var path, pd;
+      path = req.params.path;
       pd = req.body;
-      return model.Content["new"]({
-        path: helper.randstr(5),
-        title: pd.title,
-        body: pd.content,
-        create: (new Date).getTime()
-      }, function(ret) {
-        console.log(ret);
-        return res.redirect("" + admin_path + "/");
-      });
+      if (path) {
+        return model.Content.get({
+          path: path
+        }, function(rows) {
+          var ct;
+          if (rows.length > 0) {
+            ct = rows[0];
+            ct.title = pd.title;
+            ct.body = pd.content;
+            console.log(ct);
+            return model.Content.set(ct, function(ret) {
+              if (ret.changes === 1) {
+                return res.redirect("" + admin_path + "/");
+              } else {
+                throw new AdminError("bad changes");
+              }
+            });
+          } else {
+            return model.Content["new"]({
+              path: path,
+              title: pd.title,
+              body: pd.content,
+              create: (new Date).getTime()
+            }, function(ret) {
+              return res.redirect("" + admin_path + "/");
+            });
+          }
+        });
+      } else {
+        return model.Content["new"]({
+          path: helper.randstr(5),
+          title: pd.title,
+          body: pd.content,
+          create: (new Date).getTime()
+        }, function(ret) {
+          return res.redirect("" + admin_path + "/");
+        });
+      }
     });
   };
 }).call(this);

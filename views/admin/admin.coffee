@@ -1,3 +1,7 @@
+@title = "文章管理"
+
+h2 @title
+
 ul ->
   for i in @ls
-    li -> i
+    li -> a href:"#{@admin_path}/edit/#{i.path}", "#{i.title}"

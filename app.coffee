@@ -20,7 +20,7 @@ app.configure ()->
     key: "banajs"
     secret: "banajs"
   app.use express.methodOverride()
-  app.use app.router
+  #app.use app.router
   app.use express.static(__dirname + '/public')
 
   app.set 'prodir', __dirname
