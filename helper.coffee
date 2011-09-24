@@ -3,6 +3,7 @@
 
 assert = require "assert"
 crypto = require "crypto"
+libxml = require "libxmljs"
 
 
 helper = module.exports = 
@@ -29,10 +30,63 @@ helper = module.exports =
       else
         assert.ok min < max, "min MUST less then max"
         (tmp[Math.random()*tmplen | 0] for i in [min..(min + helper.rand(max-min))]).join("")
-    
-    
 
+  converthtml: do ()->
+    (html)->
+      tr = libxml.parseHtmlString html
+      fcd = tr.find "/html/body/*"
+      tree = []
+      push_node = (t, i) ->
+        t.push
+          tag : i.name()
+          text : i.text()
+          href : "##{i.text()}"
+          items : []
+      for i in fcd
+        iname = i.name()
+        if iname?[0] == "h"
+          tlen =  if tree.length > 0 then tree.length - 1 else 0
+          if tree[-1]?.tag == iname
+            push_node tree, i
+          else if tree[tlen]?.tag
+            last = parseInt tree[tlen].tag[1..]
+            now = parseInt iname[1..]
+            if last < now
+              push_node tree[tlen].items, i
+            else
+              push_node tree, i
+          else
+            push_node tree, i
+
+          section = new libxml.Element tr, "section",
+            id: i.text()
+          header = new libxml.Element(tr, "header")
+          section.addChild header
+          nt = i.nextSibling()
+          pt = i.parent()
+          i.remove()
+          header.addChild i
+          if nt then nt.addPrevSibling section else pt.addChild section
+
+      [((i.toString() for i in tr.find("/html/body/*")).join ""), tree]
+        
+    
 if require.main == module #Unit Test
+  do ()-> #converthtml
+    console.log helper.converthtml """<h1>简介</h1>
+      <p>萨打算打算</p>
+      <h2>开篇</h2>
+      <p>asdasdasd</p>
+      <h3>测试</h3>
+      <p>asdadasd</p>
+      <h1>开始</h1>
+      <h2>1</h2>
+      <p>aaa</p>
+      <h2>2</h2>
+      <h2>3</h2>
+      <h3>内容</h3>
+      <p>aaaaaaaaaaaaa</p>
+      """
   do ()-> #sha1
     assert.equal (helper.sha1 "soddy"), "65afec57cb15cfd8eeb080daaa9e538aa8f85469", "sha1 Error"
 
@@ -44,6 +98,3 @@ if require.main == module #Unit Test
   do ()-> #randstr
     assert.notEqual (helper.randstr 10), (helper.randstr 10)
     
-
-
-

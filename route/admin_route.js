@@ -29,14 +29,15 @@
     admin_menu = [
       {
         text: "管理",
-        href: "#",
+        href: "" + admin_path + "/",
         items: [
           {
             text: "添加",
             href: "" + admin_path + "/edit/"
           }, {
             text: "登出",
-            href: "" + admin_path + "/logout/"
+            href: "" + admin_path + "/logout/",
+            method: "POST"
           }
         ]
       }
@@ -58,6 +59,10 @@
     });
     app.get("" + admin_path + "/login/", function(req, res) {
       return res.render("admin/login");
+    });
+    app.post("" + admin_path + "/logout/", function(req, res) {
+      req.session.admin = void 0;
+      return res.redirect("/");
     });
     app.post("" + admin_path + "/login/", function(req, res) {
       var email, pwd;
@@ -117,7 +122,6 @@
             ct = rows[0];
             ct.title = pd.title;
             ct.body = pd.content;
-            console.log(ct);
             return model.Content.set(ct, function(ret) {
               if (ret.changes === 1) {
                 return res.redirect("" + admin_path + "/");

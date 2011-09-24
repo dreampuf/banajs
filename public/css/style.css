@@ -136,14 +136,14 @@ nav li h1 a {
     background-position: 3px 3px;
 }
  
-nav li.nav_intro h1 a       { background-image: none; padding-left: 20px; }
-nav li.nav_object h1 a      { background-position: 5px 3px; }
-nav li.nav_function h1 a    { background-position: 5px -60px; }
-nav li.nav_array h1 a       { background-position: 5px -28px; }
-nav li.nav_types h1 a       { background-position: 5px -92px; }
-nav li.nav_core h1 a        { background-position: 5px -124px; }
-nav li.nav_other h1 a       { background-position: 5px -156px; }
-nav li.nav_appendix h1 a    { background-position: 5px -188px; }
+#nav li.nav_intro h1 a       { background-image: none; padding-left: 20px; }
+#nav li.nav_object h1 a      { background-position: 5px 3px; }
+#nav li.nav_function h1 a    { background-position: 5px -60px; }
+#nav li.nav_array h1 a       { background-position: 5px -28px; }
+#nav li.nav_types h1 a       { background-position: 5px -92px; }
+#nav li.nav_core h1 a        { background-position: 5px -124px; }
+#nav li.nav_other h1 a       { background-position: 5px -156px; }
+#nav li.nav_appendix h1 a    { background-position: 5px -188px; }
  
 nav a {
     color: white;

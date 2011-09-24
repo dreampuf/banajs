@@ -17,13 +17,14 @@ route = module.exports = (app)->
   admin_path = app.admin_path
   admin_menu = [{
     text: "管理"
-    href: "#"
+    href: "#{ admin_path }/"
     items: [{
       text: "添加"
       href: "#{ admin_path }/edit/"
     },{
       text: "登出"
       href: "#{ admin_path }/logout/"
+      method: "POST"
     }]
   }]
   admin_validate = (req, res, next)->
@@ -44,6 +45,10 @@ route = module.exports = (app)->
 
   app.get "#{admin_path}/login/", (req, res)->
     res.render "admin/login"
+
+  app.post "#{ admin_path }/logout/", admin_validate, (req, res)->
+    req.session.admin = undefined
+    res.redirect "/"
 
   app.post "#{admin_path}/login/", (req, res)->
     email= req.body.email

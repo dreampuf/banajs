@@ -1,7 +1,7 @@
 doctype 5
 html ->
   head ->
-    title if @title? then "#{@title} In tucao" else "Bana"
+    title if @title? then "#{@title}" else "Bana"
     meta charset: 'utf-8'
     meta(name: 'description', content: @description) if @description?
     link(rel: 'canonical', href: @canonical) if @canonical?
@@ -15,6 +15,16 @@ html ->
 
     #style '''
     #'''
+    coffeescript ->
+      $ ()->
+        $("a[method='POST']").each (n, i)->
+          $(i).click (e)->
+            target = $(e.target)
+            $("<form method='POST' action='#{ target.attr "href" }'></form>").submit()
+            return false
+        #this.dopost = (e)->
+        #  console.log $(e).attr "href"
+        #  return false
   body ->
     nav id: 'nav_main', ->
       div ->
@@ -29,7 +39,11 @@ html ->
             li ->
               h1 -> a href: i.href, "#{i.text}"
               for j in i.items
-                li -> a href: j.href, "#{ j.text }"
+                if j.method == "POST"
+                  li -> a href: j.href, method:"POST", "#{ j.text }"
+                else
+                  li -> a href: j.href, "#{ j.text }"
+
 
 
 

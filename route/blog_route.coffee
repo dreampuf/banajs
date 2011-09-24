@@ -6,26 +6,29 @@ md = require("node-markdown").Markdown
 model = require "../model"
 helper = require "../helper"
 
+hard_menu = [{
+    text: "三四岁"
+    href: "/"
+    items: [{
+      text: "添加"
+      href: "/edit/"
+    },{
+      text: "登出"
+      href: "/logout/"
+    }]
+  }]
+
 route = module.exports = (app)->
   app.get "/", (req, res)->
     model.Content.get (rows)->
+      menu = []
       for i in rows
-        i.content = md(i.body)
+        ct = md(i.body)
+        [ct, amenu] = helper.converthtml ct
+        i.content = ct
+        menu = menu.concat amenu
+
       res.render "index", 
         ls: rows
+        menu: menu
         format: true
-        nav_ul:
-          [
-            [
-              href:"#array"
-              text:"数组"
-            , href:"#ssss"
-            text:"集合"
-            ],[
-              href:"#arraysdsd"
-              text:"数列"
-            , href:"#11243"
-            text:"集体"
-            ]
-          ]
-
