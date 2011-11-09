@@ -2,6 +2,8 @@
 # author: dreampuf(soddyque@gmail.com)
 
 utils = require "util"
+assert = require "assert"
+md = require("node-markdown").Markdown
 model = require "../model"
 helper = require "../helper"
 

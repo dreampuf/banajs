@@ -3,7 +3,12 @@
 
 assert = require "assert"
 crypto = require "crypto"
+http = require "http"
+https = require "https"
+url = require "url"
+md = require("node-markdown").Markdown
 libxml = require "libxmljs"
+request = require "request"
 
 
 helper = module.exports = 
@@ -32,6 +37,7 @@ helper = module.exports =
         (tmp[Math.random()*tmplen | 0] for i in [min..(min + helper.rand(max-min))]).join("")
 
   converthtml: do ()->
+    """ 生成类似于rST的文档目录结构 """
     (html)->
       tr = libxml.parseHtmlString html
       fcd = tr.find "/html/body/*"
@@ -69,11 +75,118 @@ helper = module.exports =
           if nt then nt.addPrevSibling section else pt.addChild section
 
       [((i.toString() for i in tr.find("/html/body/*")).join ""), tree]
-        
+
+  fetch_title : (html) ->
+    doc = libxml.parseHtmlString html
+    fcd = doc.find "//h1"
+    if fcd.length > 0 then fcd[0].text() else null
+
+  net_mt_google : do ()->
+    re_ret = /"translatedText": "([\w\W]+)"/g
+    (ct, source="zh-CN", target="en", cb=null)->
+      if arguments.length == 2 and typeof(source) == "function"
+        cb = source
+        source = "zh-CN"
+      if not cb
+        throw new Error "callback function is null!"
+
+      turl = url.format 
+        host: "www.googleapis.com"
+        protocol: "https:"
+        pathname: "/language/translate/v2"
+        methd: "GET"
+        query:
+          key: "AIzaSyD3_KyaIis7pklJsNXt_isG7QzkTYPmf2w"
+          q: ct
+          source: source
+          target: target
+          callback: "BANAJS"
+          _: (new Date).getTime()
+
+      do (cb)->
+        request
+          method: "GET"
+          uri: turl
+        , (err, res, body)->
+          if err
+            ret = ""
+          else
+            body = body[body.indexOf("(")+1..body.length-3]
+            obj = JSON.parse body
+            ret = obj.data?.translations?[0].translatedText
+          cb ret
+
+  net_mt: do ()->
+    (ct, source="zh-CN", target="en", cb=null)->
+      if arguments.length == 2 and typeof(source) == "function"
+        cb = source
+        source = "zh-CN"
+      if not cb
+        throw new Error "callback function is null!"
+
+      turl = url.format
+        host: "api.microsofttranslator.com"
+        protocol: "http:"
+        pathname: "/V2/Ajax.svc/Translate"
+        methd: "GET"
+        query:
+          appid: "6D59EC9FB44063B2D9824487AF0DD071532E416D"
+          text: ct
+          from: source
+          to: target
+          _: (new Date).getTime()
+
+      do (cb)->
+        request
+          method: "GET"
+          uri: turl
+        , (err, res, body)->
+          cb body[2..body.length-2]
+
+  parser_content : (body, cb)->
+    ct_html = md body
+    title = (helper.fetch_title ct_html) or ""
+    ctime = new Date
+    helper.net_mt title,(path)->
+      if path
+        path = path.toLowerCase().replace /[\s\W]+/g, "_"
+      else
+        #TODO maybe more fail in this convert
+        path = "#{ctime.getYear()+1900}#{ctime.getMonth()+1}#{ctime.getDate()}"
+
+      cb
+        path: path
+        title: title
+        body: body
+        create: ctime
     
 if require.main == module #Unit Test
+  do ()-> #parser content
+    helper.parser_content """<h1>你好BanaJS</h1>
+      <p>萨打算打算</p>
+      <h2>开篇</h2>
+      <p>aaaaaaaaaaaaa</p>
+      """
+    , (obj)->
+      assert.equal "hello_banajs", obj.path
+
+  do ()-> #net_mt
+    helper.net_mt_google "你好", (ret)->
+      assert.equal ret, "Hello"
+
+    helper.net_mt "今天天气真好,不是刮风就是下雨", (ret)->
+      assert.equal ret, "Today the weather is really good, either windy or raining"
+
+  do ()-> #fetch_title
+    assert.equal helper.fetch_title("""<h1>ttt</h1>
+      <p>asdasd</p>""")
+    , "ttt"
+    assert.equal helper.fetch_title("""<p>some other story</p>
+      <h1>title</h1>""")
+    , "title"
+
   do ()-> #converthtml
-    console.log helper.converthtml """<h1>简介</h1>
+    assert.ok helper.converthtml """<h1>简介</h1>
       <p>萨打算打算</p>
       <h2>开篇</h2>
       <p>asdasdasd</p>

@@ -9,5 +9,6 @@
     , "user-agent": "1.0.4"
     , "connect-redis": "1.0.7"
     , "libxmljs": "0.4.2"
+    , "request": "2.1.1"
   }
 }

@@ -10,9 +10,9 @@ blog_route = require('./route/blog_route')
 
 # Configuration
 app.configure ()->
-  app.register ".html", require('tenjin')
   app.set 'views', __dirname + '/views'
-  app.set('view engine', 'coffee')
+  app.set 'view engine', 'coffee'
+  app.set 'prodir', __dirname
   app.register('.coffee', require('coffeekup').adapters.express)
   app.use express.bodyParser()
   app.use express.cookieParser()
@@ -23,7 +23,6 @@ app.configure ()->
   #app.use app.router
   app.use express.static(__dirname + '/public')
 
-  app.set 'prodir', __dirname
   app.admin_path = '/admin'
 
 app.configure 'development', ()->
