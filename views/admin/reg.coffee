@@ -14,6 +14,6 @@ form method:"POST", ->
     input type:"password", name:"password" , value: ""
   li ->
     p "RePassword:"
-    input type:"repassword", name:"password" , value: ""
+    input type:"password", name:"repassword" , value: ""
 
   input type:"submit", value:"提交"

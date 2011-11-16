@@ -171,8 +171,8 @@ if require.main == module #Unit Test
       assert.equal "hello_banajs", obj.path
 
   do ()-> #net_mt
-    helper.net_mt_google "你好", (ret)->
-      assert.equal ret, "Hello"
+    #helper.net_mt_google "你好", (ret)->
+    #  assert.equal ret, "Hello"
 
     helper.net_mt "今天天气真好,不是刮风就是下雨", (ret)->
       assert.equal ret, "Today the weather is really good, either windy or raining"

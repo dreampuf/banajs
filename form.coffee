@@ -65,18 +65,26 @@ class Invalid extends Error
   toString: ()->
     "'#{ @field.title }' #{ @reason }."
 
-required = (pattern)->
-  pattern = pattern or /\S+/
-  (val, valid)->
-    if !val
-      return valid.fail(@, 'is required')
-    else if !pattern.test(val)
-      return valid.fail(@, "isn't formatted correctly")
+rule = 
+  required : (pattern)->
+    pattern = pattern or /\S+/
+    (val, valid)->
+      if !val
+        return valid.fail(@, 'is required')
+      else if !pattern.test(val)
+        return valid.fail(@, "isn't formatted correctly")
+  
+  equal : (name)->
+    (val, valid)->
+      if val != valid.input[name]
+        return valid.fail @, "must match '#{ valid.fields[name].title}'"
+  
+  email :()->
+    pattern = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i
+    (val, valid)->
+      if !pattern.test(val)
+        return valid.fail(@, "isn't email address")
 
-equal = (name)->
-  (val, valid)->
-    if val != valid.input[name]
-      return valid.fail @, "must match '#{ valid.fields[name].title}'"
 
 wrapArray = (val)->
   if val instanceof Array
@@ -86,21 +94,28 @@ wrapArray = (val)->
 form = module.exports =
   Form : Form
   Field : Field
-  required : required
-  equal : equal
+  rule : rule
 
 if require.main == module
   do()-> #test Model
     aform = form.Form("aform")
-      .field("email", "Email", form.required(/@/))
-      .field("nickname", "Nickname", form.required())
-      .field("password", "Password", form.required())
+      .field("email", "Email", form.rule.email())
+      .field("nickname", "Nickname", form.rule.required())
+      .field("password", "Password", form.rule.required())
 
     ret = aform.validate({
       email: "s",
       nickname: "xx" })
 
     assert.equal ret.isValid(), false
-    console.log "errors:", ret.errors()
+    assert.deepEqual ret.errors(), [{ name: 'email', reason: '\'Email\' isn\'t email address.' }, { name: 'password', reason: '\'Password\' is required.' }]
+
+    ret = aform.validate({
+      email: "soddyque@gmail.com"
+      nickname: "dreampuf"
+      password: "xxx"})
+
+    assert.ok ret.isValid()
+    console.log ret.data
 
 

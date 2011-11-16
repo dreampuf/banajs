@@ -5,6 +5,10 @@ utils = require "util"
 assert = require "assert"
 md = require("node-markdown").Markdown
 model = require "../model"
+form = require "../form"
+rule = form.rule
+User = model.User
+Content = model.Content
 helper = require "../helper"
 
 class AdminError extends Error
@@ -14,6 +18,15 @@ class AdminError extends Error
     Error.captureStackTrace @, arguments.callee
     @
 
+form_reg = form.Form("Reg")
+             .field("email", "Email", rule.email())
+             .field("nickname", "Nickname", rule.required())
+             .field("password", "Password", rule.required())
+             .field("repassword", "RePassword", rule.equal("password"))
+
+form_login = form.Form("Login")
+             .field("email", "Email", rule.email())
+             .field("password", "Password", rule.required())
 
 route = module.exports = (app)->
   admin_path = app.admin_path
@@ -45,30 +58,54 @@ route = module.exports = (app)->
     else
       next(err)
 
+
   app.get "#{admin_path}/login/", (req, res)->
+    if User.db.length == 0
+      return res.redirect "#{ admin_path }/reg/"
+
     res.render "admin/login"
 
-  app.post "#{ admin_path }/logout/", admin_validate, (req, res)->
-    req.session.admin = undefined
-    res.redirect "/"
-
   app.post "#{admin_path}/login/", (req, res)->
+    #TODO 进行登录处理
     email= req.body.email
     pwd = req.body.pwd
-    model.User.check email, helper.sha1(pwd), (ok)->
-      if ok
-        req.session.admin = ok[0]
-        res.redirect "#{admin_path}/"
-      else
-        res.redirect "#{admin_path}/login/"
+    ret = model.User.check email, helper.sha1(pwd)
+    if ret
+      req.session.admin = ret
+      res.redirect "#{admin_path}/"
+    else
+      res.redirect "#{admin_path}/login/#ValidateError"
+
+  app.post "#{ admin_path }/logout/", admin_validate, (req, res)->
+    delete req.session.admin
+    res.redirect "/"
+
+  app.get "#{ admin_path }/reg/", (req, res)->
+    if User.db.length != 0
+      throw new AdminError("You had a Admin User")
+    res.render "admin/reg"
+
+    app.post "#{ admin_path }/reg/", (req, res)->
+      form = form_reg.validate req.body
+      if !form.isValid()
+        return res.send form.errors(), 400
+      if User.db.length != 0
+        throw new AdminError("You had a Admin User")
+
+      u = form.data
+      u.password = helper.sha1 u.password
+      delete u.repassword
+      console.log u
+      User.put u, ()->
+        res.redirect "#{ admin_path }/login/"
 
   app.get "#{admin_path}/", admin_validate, (req, res)->
-    model.Content.get (rows)->
-      res.render "admin/admin",
-        menu: admin_menu
-        ls: rows
-        admin_path: admin_path
-        format: true
+    contents = Content.db
+    res.render "admin/admin",
+      menu: admin_menu
+      ls: contents
+      admin_path: admin_path
+      format: true
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
     if req.params.path
@@ -93,7 +130,7 @@ route = module.exports = (app)->
       model.Content.get
         path:path
       , (rows)->
-        if rows.length > 0
+        if rows.length > 0 #modify
           ct = rows[0]
           ct.title = pd.title
           ct.body = pd.content

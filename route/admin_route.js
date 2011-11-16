@@ -1,5 +1,5 @@
 (function() {
-  var AdminError, helper, model, route, utils;
+  var AdminError, Content, User, assert, form, form_login, form_reg, helper, md, model, route, rule, utils;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -9,7 +9,13 @@
     return child;
   };
   utils = require("util");
+  assert = require("assert");
+  md = require("node-markdown").Markdown;
   model = require("../model");
+  form = require("../form");
+  rule = form.rule;
+  User = model.User;
+  Content = model.Content;
   helper = require("../helper");
   AdminError = (function() {
     __extends(AdminError, Error);
@@ -23,6 +29,8 @@
     }
     return AdminError;
   })();
+  form_reg = form.Form("Reg").field("email", "Email", rule.email()).field("nickname", "Nickname", rule.required()).field("password", "Password", rule.required()).field("repassword", "RePassword", rule.equal("password"));
+  form_login = form.Form("Login").field("email", "Email", rule.email()).field("password", "Password", rule.required());
   route = module.exports = function(app) {
     var admin_menu, admin_path, admin_validate;
     admin_path = app.admin_path;
@@ -58,33 +66,58 @@
       }
     });
     app.get("" + admin_path + "/login/", function(req, res) {
+      if (User.db.length === 0) {
+        return res.redirect("" + admin_path + "/reg/");
+      }
       return res.render("admin/login");
     });
-    app.post("" + admin_path + "/logout/", function(req, res) {
-      req.session.admin = void 0;
-      return res.redirect("/");
-    });
     app.post("" + admin_path + "/login/", function(req, res) {
-      var email, pwd;
+      var email, pwd, ret;
       email = req.body.email;
       pwd = req.body.pwd;
-      return model.User.check(email, helper.sha1(pwd), function(ok) {
-        if (ok) {
-          req.session.admin = ok[0];
-          return res.redirect("" + admin_path + "/");
-        } else {
-          return res.redirect("" + admin_path + "/login/");
+      ret = model.User.check(email, helper.sha1(pwd));
+      if (ret) {
+        req.session.admin = ret;
+        return res.redirect("" + admin_path + "/");
+      } else {
+        return res.redirect("" + admin_path + "/login/#ValidateError");
+      }
+    });
+    app.post("" + admin_path + "/logout/", admin_validate, function(req, res) {
+      delete req.session.admin;
+      return res.redirect("/");
+    });
+    app.get("" + admin_path + "/reg/", function(req, res) {
+      if (User.db.length !== 0) {
+        throw new AdminError("You had a Admin User");
+      }
+      res.render("admin/reg");
+      return app.post("" + admin_path + "/reg/", function(req, res) {
+        var u;
+        form = form_reg.validate(req.body);
+        if (!form.isValid()) {
+          return res.send(form.errors(), 400);
         }
+        if (User.db.length !== 0) {
+          throw new AdminError("You had a Admin User");
+        }
+        u = form.data;
+        u.password = helper.sha1(u.password);
+        delete u.repassword;
+        console.log(u);
+        return User.put(u, function() {
+          return res.redirect("" + admin_path + "/login/");
+        });
       });
     });
     app.get("" + admin_path + "/", admin_validate, function(req, res) {
-      return model.Content.get(function(rows) {
-        return res.render("admin/admin", {
-          menu: admin_menu,
-          ls: rows,
-          admin_path: admin_path,
-          format: true
-        });
+      var contents;
+      contents = Content.db;
+      return res.render("admin/admin", {
+        menu: admin_menu,
+        ls: contents,
+        admin_path: admin_path,
+        format: true
       });
     });
     app.get("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {

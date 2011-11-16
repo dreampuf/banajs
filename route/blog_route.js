@@ -34,26 +34,7 @@
         return res.render("index", {
           ls: rows,
           menu: menu,
-          format: true,
-          nav_ul: [
-            [
-              {
-                href: "#array",
-                text: "数组"
-              }, {
-                href: "#ssss",
-                text: "集合"
-              }
-            ], [
-              {
-                href: "#arraysdsd",
-                text: "数列"
-              }, {
-                href: "#11243",
-                text: "集体"
-              }
-            ]
-          ]
+          format: true
         });
       });
     });
