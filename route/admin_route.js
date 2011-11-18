@@ -122,31 +122,40 @@
     });
     app.get("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
       var path;
-      if (req.params.path) {
-        path = req.params.path;
-        return model.Content.get({
-          path: path
-        }, function(rows) {
-          if (rows.length > 0) {
-            return res.render("admin/edit", {
-              menu: admin_menu,
-              content: rows[0],
-              format: true
-            });
-          }
-        });
-      } else {
-        return res.render("admin/edit", {
+      if (!req.params.path) {
+        res.render("admin/edit", {
           menu: admin_menu,
           format: true
         });
+        return;
       }
+      path = req.params.path;
+      return model.Content.get({
+        path: path
+      }, function(rows) {
+        if (rows.length > 0) {
+          return res.render("admin/edit", {
+            menu: admin_menu,
+            content: rows[0],
+            format: true
+          });
+        }
+      });
     });
     return app.post("" + admin_path + "/edit/(:path)?", admin_validate, function(req, res) {
-      var path, pd;
+      var ct_html, ctime, path, pd;
       path = req.params.path;
       pd = req.body;
-      if (path) {
+      ctime = (new Date).getTime();
+      if (!path) {
+        ct_html = md(pd.content);
+        pd.title = helper.fetch_title(ct_html);
+        pd.create = ctime;
+        pd.modify = ctime;
+        pd.author = req.session.admin.email;
+        console.log(pd);
+        res.redirect("" + admin_path + "/");
+        return;
         return model.Content.get({
           path: path
         }, function(rows) {
@@ -172,15 +181,6 @@
               return res.redirect("" + admin_path + "/");
             });
           }
-        });
-      } else {
-        return model.Content["new"]({
-          path: helper.randstr(5),
-          title: pd.title,
-          body: pd.content,
-          create: (new Date).getTime()
-        }, function(ret) {
-          return res.redirect("" + admin_path + "/");
         });
       }
     });

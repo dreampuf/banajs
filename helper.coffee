@@ -79,7 +79,10 @@ helper = module.exports =
   fetch_title : (html) ->
     doc = libxml.parseHtmlString html
     fcd = doc.find "//h1"
-    if fcd.length > 0 then fcd[0].text() else null
+    if fcd.length > 0
+      fcd[0].text()
+    else
+      doc.text()
 
   net_mt_google : do ()->
     re_ret = /"translatedText": "([\w\W]+)"/g
@@ -184,6 +187,8 @@ if require.main == module #Unit Test
     assert.equal helper.fetch_title("""<p>some other story</p>
       <h1>title</h1>""")
     , "title"
+
+    console.log helper.fetch_title(md("""## asdasdad\r\nfsdafsadf\r\n\r\n## cccc\r\nsdfsadfsdfsadf"""))
 
   do ()-> #converthtml
     assert.ok helper.converthtml """<h1>简介</h1>

@@ -108,25 +108,45 @@ route = module.exports = (app)->
       format: true
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
-    if req.params.path
-      path = req.params.path
-      model.Content.get
-        path:path
-      , (rows)->
-        if rows.length > 0
-          res.render "admin/edit",
-            menu: admin_menu
-            content: rows[0]
-            format: true
-    else
+    if not req.params.path #new content
       res.render "admin/edit",
         menu: admin_menu
         format: true
 
+      return
+
+    path = req.params.path
+    model.Content.get
+      path:path
+    , (rows)->
+      if rows.length > 0
+        res.render "admin/edit",
+          menu: admin_menu
+          content: rows[0]
+          format: true
+
   app.post "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
     path = req.params.path
     pd = req.body
-    if path
+    ctime = (new Date).getTime()
+    if not path #new content
+      ct_html = md pd.content
+      pd.title = helper.fetch_title ct_html
+      pd.create = ctime
+      pd.modify = ctime
+      pd.author = req.session.admin.email
+      console.log pd
+      #Content.put
+      #  id: Content.id()
+      #  path: helper.randstr 5
+      #  title: pd.title
+      #  body: pd.content
+      #  create: (new Date).getTime()
+      #, (ret)->
+      res.redirect "#{admin_path}/"
+
+      return
+
       model.Content.get
         path:path
       , (rows)->
@@ -147,12 +167,4 @@ route = module.exports = (app)->
             create: (new Date).getTime()
           , (ret)->
             res.redirect "#{admin_path}/"
-    else
-      model.Content.new
-        path: helper.randstr 5
-        title: pd.title
-        body: pd.content
-        create: (new Date).getTime()
-      , (ret)->
-        res.redirect "#{admin_path}/"
 

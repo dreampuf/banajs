@@ -47,6 +47,8 @@ with_db = (func)->
     #stat = bdb_env.closeSync()
     #assert.equal 0, stat.code, stat.message
 
+env_home = "./db"
+
 class Model
   hasPro = Object::hasOwnProperty
   constructor:(@db_name, methods)->
