@@ -6,67 +6,19 @@ assert = require("assert")
 helper = require("./helper")
 fs = require 'fs'
 path = require 'path'
-Buffer = require('buffer').Buffer
-bdb = require 'bdb'
 
 ###### Model ############
 
-with_db_Sync = (func)->
-  env_home = "./db"
-  fs.mkdirSync env_home, 0750 if not path.existsSync(env_home)
-  bdb_env = new bdb.DbEnv()
-  stat = bdb_env.openSync home: env_home
-  assert.equal 0, stat.code, stat.message
-  bdb_db = new bdb.Db bdb_env
-  stat = bdb_db.openSync env: bdb_env, file:"db"
-  assert.equal 0, stat.code, stat.message
-  
-  func(bdb_db)
-
-  #stat = bdb_db.closeSync()
-  #assert.equal 0, stat.code, stat.message
-  #stat = bdb_env.closeSync()
-  #assert.equal 0, stat.code, stat.message
-  
-with_db = (func)->
-  env_home = "./db"
-  path.exists env_home, (exists)->
-    if not exists
-      fs.mkdirSync env_home, 0750
-    bdb_env = new bdb.DbEnv()
-    stat = bdb_env.openSync home: env_home
-    assert.equal 0, stat.code, stat.message
-    bdb_db = new bdb.Db bdb_env
-    stat = bdb_db.openSync env: bdb_env, file:"db"
-    assert.equal 0, stat.code, stat.message
-    
-    func bdb_db
-
-    #stat = bdb_db.closeSync()
-    #assert.equal 0, stat.code, stat.message
-    #stat = bdb_env.closeSync()
-    #assert.equal 0, stat.code, stat.message
-
 env_home = "./db"
-
 class Model
   hasPro = Object::hasOwnProperty
   constructor:(@db_name, methods)->
-    @db_name_bf = new Buffer "table:#{ @db_name }"
-    env_home = "./db"
-    fs.mkdirSync env_home, 0750 if not path.existsSync(env_home)
-    bdb_env = new bdb.DbEnv()
-    stat = bdb_env.openSync home: env_home
-    assert.equal 0, stat.code, stat.message
-    bdb_db = new bdb.Db bdb_env
-    stat = bdb_db.openSync env: bdb_env, file:"db"
-    assert.equal 0, stat.code, stat.message
-    
-    db = bdb_db.getSync key:@db_name_bf
-    if db.code == 0
-      @db = JSON.parse db.value.toString()
-    else
-      @db = []
+    @dbpath = "#{ env_home }/#{ @db_name }"
+    if not path.existsSync @dbpath
+      fs.writeFileSync @dbpath, JSON.stringify([])
+    data = fs.readFileSync @dbpath
+    @db = JSON.parse data
+
     for i, k of methods
       @constructor::[i] = k
 
@@ -76,14 +28,13 @@ class Model
     #assert.equal 0, stat.code, stat.message
 
   sync:(cb)->
-    datas = new Buffer JSON.stringify @db
+    data = JSON.stringify @db
     if cb
-      with_db (bdb_db)=>
-        bdb_db.put {key: @db_name_bf, val: datas}, (res)->
-          cb res
+      fs.writeFile @dbpath, data, (err)->
+        throw err if err
+        cb()
     else
-      with_db_Sync (bdb_db)=>
-        bdb_db.putSync {key: @db_name_bf, val: datas}
+      fs.writeFileSync @dbpath, data
 
   put:(obj, cb)->
     @db.push obj
