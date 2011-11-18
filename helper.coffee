@@ -76,13 +76,17 @@ helper = module.exports =
 
       [((i.toString() for i in tr.find("/html/body/*")).join ""), tree]
 
-  fetch_title : (html) ->
+  fetch_title : (html, len=20) ->
     doc = libxml.parseHtmlString html
     fcd = doc.find "//h1"
     if fcd.length > 0
       fcd[0].text()
     else
-      doc.text()
+      nodes = doc.find "//*"
+      ret = (i.text() for i in nodes).join("").replace(/\s+/g, "")
+      if ret.length > len
+        ret = "#{ ret[..len-3]}..."
+      ret
 
   net_mt_google : do ()->
     re_ret = /"translatedText": "([\w\W]+)"/g
@@ -162,8 +166,13 @@ helper = module.exports =
         title: title
         body: body
         create: ctime
+
+  title_url : (title)->
+    title.trim().toLowerCase().replace(/["'\.]/g, "").replace(/[-+]\s+/g, "_")
     
 if require.main == module #Unit Test
+  do ()-> #title_url
+    console.log helper.title_url "The other day I and founder of Excite.com ..."
   do ()-> #parser content
     helper.parser_content """<h1>你好BanaJS</h1>
       <p>萨打算打算</p>
@@ -188,7 +197,8 @@ if require.main == module #Unit Test
       <h1>title</h1>""")
     , "title"
 
-    console.log helper.fetch_title(md("""## asdasdad\r\nfsdafsadf\r\n\r\n## cccc\r\nsdfsadfsdfsadf"""))
+    assert.equal helper.fetch_title(md("""## asdasdad\r\nfsdafsadf\r\n\r\n## cccc\r\nsdfsadfsdfsadf"""))
+    , "asdasdadfsdafsadfc..."
 
   do ()-> #converthtml
     assert.ok helper.converthtml """<h1>简介</h1>

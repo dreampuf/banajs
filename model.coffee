@@ -22,11 +22,6 @@ class Model
     for i, k of methods
       @constructor::[i] = k
 
-    #stat = bdb_db.closeSync()
-    #assert.equal 0, stat.code, stat.message
-    #stat = bdb_env.closeSync()
-    #assert.equal 0, stat.code, stat.message
-
   sync:(cb)->
     data = JSON.stringify @db
     if cb
@@ -42,6 +37,7 @@ class Model
 
 Content = new Model "Content", {
   # title
+  # path
   # create
   # modify
   # body

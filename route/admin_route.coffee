@@ -135,7 +135,9 @@ route = module.exports = (app)->
       pd.create = ctime
       pd.modify = ctime
       pd.author = req.session.admin.email
-      console.log pd
+      helper.net_mt pd.title, (title_en)->
+        pd.path = title_en
+        console.log pd
       #Content.put
       #  id: Content.id()
       #  path: helper.randstr 5
@@ -143,7 +145,7 @@ route = module.exports = (app)->
       #  body: pd.content
       #  create: (new Date).getTime()
       #, (ret)->
-      res.redirect "#{admin_path}/"
+        res.redirect "#{admin_path}/"
 
       return
 

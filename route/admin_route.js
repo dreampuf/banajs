@@ -153,8 +153,11 @@
         pd.create = ctime;
         pd.modify = ctime;
         pd.author = req.session.admin.email;
-        console.log(pd);
-        res.redirect("" + admin_path + "/");
+        helper.net_mt(pd.title, function(title_en) {
+          pd.path = title_en;
+          console.log(pd);
+          return res.redirect("" + admin_path + "/");
+        });
         return;
         return model.Content.get({
           path: path
