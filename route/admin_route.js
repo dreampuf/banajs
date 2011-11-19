@@ -1,5 +1,5 @@
 (function() {
-  var AdminError, Content, User, assert, form, form_login, form_reg, helper, md, model, route, rule, utils;
+  var AdminError, Content, User, assert, form, form_login, form_reg, helper, md, model, querystring, route, rule, url, utils;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -10,6 +10,8 @@
   };
   utils = require("util");
   assert = require("assert");
+  querystring = require("querystring");
+  url = require("url");
   md = require("node-markdown").Markdown;
   model = require("../model");
   form = require("../form");
@@ -30,7 +32,7 @@
     return AdminError;
   })();
   form_reg = form.Form("Reg").field("email", "Email", rule.email()).field("nickname", "Nickname", rule.required()).field("password", "Password", rule.required()).field("repassword", "RePassword", rule.equal("password"));
-  form_login = form.Form("Login").field("email", "Email", rule.email()).field("password", "Password", rule.required());
+  form_login = form.Form("Login").field("email", "Email", rule.email()).field("pwd", "Password", rule.required());
   route = module.exports = function(app) {
     var admin_menu, admin_path, admin_validate;
     admin_path = app.admin_path;
@@ -58,9 +60,16 @@
       }
     };
     app.error(function(err, req, res, next) {
+      var rurl;
       console.dir(err);
       if (err instanceof AdminError) {
-        return res.redirect("" + admin_path + "/login/");
+        rurl = "" + admin_path + "/login/?c=" + (url.parse(req.header("referer")).pathname);
+        if (req.body) {
+          rurl += "&method=POST&" + (querystring.stringify(req.body));
+        } else if (req.query) {
+          rurl += "&method=GET&" + (querystring.stringify(req.query));
+        }
+        return res.redirect(rurl);
       } else {
         return next(err);
       }
@@ -78,9 +87,11 @@
       ret = model.User.check(email, helper.sha1(pwd));
       if (ret) {
         req.session.admin = ret;
-        return res.redirect("" + admin_path + "/");
+      }
+      if (req.xhr) {
+        return res.json(ret ? true : false);
       } else {
-        return res.redirect("" + admin_path + "/login/#ValidateError");
+        return res.redirect(ret ? "" + admin_path + "/" : "" + admin_path + "/login/#ValidateError");
       }
     });
     app.post("" + admin_path + "/logout/", admin_validate, function(req, res) {
@@ -91,23 +102,23 @@
       if (User.db.length !== 0) {
         throw new AdminError("You had a Admin User");
       }
-      res.render("admin/reg");
-      return app.post("" + admin_path + "/reg/", function(req, res) {
-        var u;
-        form = form_reg.validate(req.body);
-        if (!form.isValid()) {
-          return res.send(form.errors(), 400);
-        }
-        if (User.db.length !== 0) {
-          throw new AdminError("You had a Admin User");
-        }
-        u = form.data;
-        u.password = helper.sha1(u.password);
-        delete u.repassword;
-        console.log(u);
-        return User.put(u, function() {
-          return res.redirect("" + admin_path + "/login/");
-        });
+      return res.render("admin/reg");
+    });
+    app.post("" + admin_path + "/reg/", function(req, res) {
+      var u;
+      form = form_reg.validate(req.body);
+      if (!form.isValid()) {
+        return res.send(form.errors(), 400);
+      }
+      if (User.db.length !== 0) {
+        throw new AdminError("You had a Admin User");
+      }
+      u = form.data;
+      u.password = helper.sha1(u.password);
+      delete u.repassword;
+      console.log(u);
+      return User.put(u, function() {
+        return res.redirect("" + admin_path + "/login/");
       });
     });
     app.get("" + admin_path + "/", admin_validate, function(req, res) {
@@ -149,10 +160,12 @@
       ctime = (new Date).getTime();
       if (!path) {
         ct_html = md(pd.content);
-        pd.title = helper.fetch_title(ct_html);
-        pd.create = ctime;
-        pd.modify = ctime;
-        pd.author = req.session.admin.email;
+        helper.update(pd, {
+          title: helper.fetch_title(ct_html),
+          create: ctime,
+          modify: ctime,
+          author: req.session.admin.email
+        });
         helper.net_mt(pd.title, function(title_en) {
           pd.path = title_en;
           console.log(pd);
