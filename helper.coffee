@@ -168,7 +168,7 @@ helper = module.exports =
         create: ctime
 
   title_url : (title)->
-    title.trim().toLowerCase().replace(/["'\.]/g, "").replace(/[-+]\s+/g, "_")
+    title.trim().toLowerCase().replace(/["'\.]/g, "").replace(/[-+\s]+/g, "_")
   update: (source, obj)->
     for k, v of obj
       source[k] = v

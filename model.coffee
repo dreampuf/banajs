@@ -32,7 +32,17 @@ class Model
       fs.writeFileSync @dbpath, data
 
   put:(obj, cb)->
-    @db.push obj
+    console.log obj
+    modifed = false
+    if obj.id #modify
+      for i, n in @db
+        if i.id == obj.id
+          @db[n] = obj
+          modifed = true
+          break
+    
+    if not modifed #new
+      @db.push obj
     @sync cb
 
 Content = new Model "Content", {

@@ -14,6 +14,7 @@ app.configure ()->
   app.set 'view engine', 'coffee'
   app.set 'prodir', __dirname
   app.register('.coffee', require('coffeekup').adapters.express)
+  #app.use express.compiler src: __dirname + '/public', enable: ['coffeescript']
   app.use express.bodyParser()
   app.use express.cookieParser()
   app.use express.session

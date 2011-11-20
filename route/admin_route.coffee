@@ -51,13 +51,20 @@ route = module.exports = (app)->
       next new AdminError("refuse access")
 
   app.error (err, req, res, next)->
-    console.dir err
     if err instanceof AdminError
-      rurl = "#{admin_path}/login/?c=#{url.parse(req.header("referer")).pathname}"
+      #console.log req
+      #referer = req.header "referer"
+      rurl = "#{admin_path}/login/"
+      data = {}
+      if req.url
+        data["c"] = url.parse(req.url).pathname
       if req.body
-        rurl += "&method=POST&#{querystring.stringify(req.body)}"
+        data["POST"] = querystring.stringify(req.body)
       else if req.query
-        rurl += "&method=GET&#{querystring.stringify(req.query)}"
+        data["GET"] = querystring.stringify(req.query)
+      if data["c"]
+        rurl += "?#{ querystring.stringify data }"
+        
       res.redirect rurl
       #res.render "admin/error",
       #  error: err
@@ -73,7 +80,6 @@ route = module.exports = (app)->
     res.render "admin/login"
 
   app.post "#{admin_path}/login/", (req, res)->
-    #TODO 进行登录处理
     email= req.body.email
     pwd = req.body.pwd
     ret = model.User.check email, helper.sha1(pwd)
@@ -119,25 +125,25 @@ route = module.exports = (app)->
       format: true
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
-    if not req.params.path #new content
+    path = req.params.path | 0
+    if not path #new content
       res.render "admin/edit",
         menu: admin_menu
         format: true
-
       return
 
-    path = req.params.path
-    model.Content.get
-      path:path
-    , (rows)->
-      if rows.length > 0
-        res.render "admin/edit",
-          menu: admin_menu
-          content: rows[0]
-          format: true
+    console.log Content.db, path
+    pd = (i for i in Content.db when path == i.id)[0]
+    if not pd
+      throw new AdminError("invalid content")
+    
+    res.render "admin/edit",
+      menu: admin_menu
+      content: pd
+      format: true
 
   app.post "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
-    path = req.params.path
+    path = req.params.path | 0
     pd = req.body
     ctime = (new Date).getTime()
     if not path #new content
@@ -147,39 +153,27 @@ route = module.exports = (app)->
         create: ctime
         modify: ctime
         author: req.session.admin.email
+        view: 0
 
-      helper.net_mt pd.title, (title_en)->
-        pd.path = title_en
-        console.log pd
-      #Content.put
-      #  id: Content.id()
-      #  path: helper.randstr 5
-      #  title: pd.title
-      #  body: pd.content
-      #  create: (new Date).getTime()
-      #, (ret)->
-        res.redirect "#{admin_path}/"
-
-      return
-
-      model.Content.get
-        path:path
-      , (rows)->
-        if rows.length > 0 #modify
-          ct = rows[0]
-          ct.title = pd.title
-          ct.body = pd.content
-          model.Content.set ct,(ret)->
-            if ret.changes == 1
-              res.redirect "#{admin_path}/"
-            else
-              throw new AdminError("bad changes")
-        else
-          model.Content.new
-            path: path
-            title: pd.title
-            body: pd.content
-            create: (new Date).getTime()
-          , (ret)->
-            res.redirect "#{admin_path}/"
-
+    else #modify content
+      opd = (i for i in Content.db when path == i.id)[0]
+      if not opd
+        throw new AdminError("invalid content")
+       
+      ct_html = md pd.content
+      helper.update opd,
+        title: helper.fetch_title ct_html
+        content: pd.content
+        modify: ctime
+      pd = opd
+      
+    helper.net_mt pd.title, (title_en)->
+      ctime = new Date
+      ctime.setTime pd.create
+      #TODO more userful
+      pd.path = "#{ctime.getFullYear()}/#{ctime.getMonth()+1}/#{helper.title_url title_en}.html"
+      if not pd.id
+        helper.update pd,
+          id : Content.id()
+      Content.put pd
+      res.redirect "#{admin_path}/"

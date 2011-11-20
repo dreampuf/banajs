@@ -4,6 +4,7 @@
 utils = require "util"
 md = require("node-markdown").Markdown
 model = require "../model"
+Content = model.Content
 helper = require "../helper"
 
 hard_menu = [{
@@ -20,15 +21,15 @@ hard_menu = [{
 
 route = module.exports = (app)->
   app.get "/", (req, res)->
-    model.Content.get (rows)->
-      menu = []
-      for i in rows
-        ct = md(i.body)
-        [ct, amenu] = helper.converthtml ct
-        i.content = ct
-        menu = menu.concat amenu
+    rows = Content.db
+    menu = []
+    for i in rows
+      ct = md(i.content)
+      [ct, amenu] = helper.converthtml ct
+      i.content = ct
+      menu = menu.concat amenu
 
-      res.render "index", 
-        ls: rows
-        menu: menu
-        format: true
+    res.render "index",
+      ls: rows
+      menu: menu
+      format: true

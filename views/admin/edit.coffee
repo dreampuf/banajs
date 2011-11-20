@@ -16,6 +16,6 @@ form method:"POST", ->
   #  p "Title:"
   #  input type:"text", name:"title" , value: if @content then @content.title else ""
   li ->
-    textarea id:"ct", name:"content", rows:20, cols:30, (if @content then "#{@content.body}" else "")
+    textarea id:"ct", name:"content", rows:20, cols:30, (if @content then "#{@content.content}" else "")
 
   input type:"submit", value:"提交"
