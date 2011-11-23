@@ -32,7 +32,7 @@ html ->
         ul ->
           li -> a href: '/', title: 'Index', 'Index'
 
-        a id: 'top', href: '#intro', title: 'Back to top', '#top'
+        a id: 'top', href: '#content', title: 'Back to top', '#top'
         a id: 'hide_menu', class: 'tablet', 'Hide Menu'
       if @menu?
         for i in @menu
@@ -47,7 +47,6 @@ html ->
 
 
 
-
     nav id: 'nav_mobile', ->
       a id: 'nav_prev_section', href: '#', ->
         text 'prev section'
@@ -58,7 +57,7 @@ html ->
       a id: 'show_menu', 'show menu'
 
 
-    div id: 'content', ->
+    section id: 'content', ->
       @body
 
     footer ->

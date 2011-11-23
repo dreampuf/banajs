@@ -26,7 +26,7 @@ route = module.exports = (app)->
     for i in rows
       ct = md(i.content)
       [ct, amenu] = helper.converthtml ct
-      i.content = ct
+      i.html = ct
       menu = menu.concat amenu
 
     res.render "index",

@@ -7,7 +7,6 @@
     , "node-markdown": "0.1.0"
     , "coffeekup": "0.3.0"
     , "user-agent": "1.0.4"
-    , "connect-redis": "1.0.7"
     , "libxmljs": "0.4.2"
     , "request": "2.1.1"
   }

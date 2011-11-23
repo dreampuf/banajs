@@ -112,7 +112,6 @@ route = module.exports = (app)->
     u = form.data
     u.password = helper.sha1 u.password
     delete u.repassword
-    console.log u
     User.put u, ()->
       res.redirect "#{ admin_path }/login/"
 
@@ -132,7 +131,6 @@ route = module.exports = (app)->
         format: true
       return
 
-    console.log Content.db, path
     pd = (i for i in Content.db when path == i.id)[0]
     if not pd
       throw new AdminError("invalid content")

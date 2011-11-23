@@ -1,6 +1,5 @@
 @title = "BanaJS"
 h3 @title
 
-ul ->
-  for i in @ls
-    li -> p "#{i.content}"
+for i in @ls
+  article -> "#{i.html}"
