@@ -169,10 +169,23 @@ helper = module.exports =
 
   title_url : (title)->
     title.trim().toLowerCase().replace(/["'\.]/g, "").replace(/[-+\s]+/g, "_")
+
   update: (source, obj)->
     for k, v of obj
       source[k] = v
     source
+
+  html_escape : (text)->
+    text.replace(/\&/g,'&amp;')
+      .replace(/\</g, '&lt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/\'/g, '&#039;')
+
+  int2date : (int)->
+    d = new Date
+    d.setTime int
+    d
+
     
 if require.main == module #Unit Test
   do ()-> #title_url

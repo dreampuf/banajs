@@ -5,6 +5,7 @@ html ->
     meta charset: 'utf-8'
     meta(name: 'description', content: @description) if @description?
     link(rel: 'canonical', href: @canonical) if @canonical?
+    link(href: '/feed/', ref:'alternate', title:'Bana', type:'application/atom+xml')
 
     #link rel: 'icon', href: '/favicon.png'
     link rel: 'stylesheet', href: '/css/style.css', media:'all'
