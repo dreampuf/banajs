@@ -186,6 +186,30 @@ helper = module.exports =
     d.setTime int
     d
 
+  dateds : (dsint)->
+    od = helper.int2date dsint
+    n = new Date
+    ds = n - od
+    if 0 <= ds < 900000 #15 * 60 * 1000
+      "刚刚"
+    else if 900000 <= ds < 3600000 #1 * 60 * 60 * 1000
+      "一会儿前"
+    else if 3600000 <= ds < 28800000 #8 * 60 * 60 * 1000
+      "早先"
+    else if 28800000 <= ds < 86400000 #24 * 60 * 60 * 1000
+      "今天"
+    else if 86400000 <= ds < 172800000 # 48 h
+      "昨天"
+    else
+      d = ds / 86400000 | 0
+      if d <= 5
+        "#{ arab2chi[d] }天前"
+      else
+        "#{od.getYear()+1900}-#{od.getMonth()+1}-#{od.getDate()}"
+      
+arab2chi =
+  "1": "一", "2": "二", "3": "三", "4": "四", "5": "五"
+  "6": "六", "7": "七", "8": "八", "9": "九", "0": "〇"
     
 if require.main == module #Unit Test
   do ()-> #title_url

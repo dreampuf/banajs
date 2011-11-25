@@ -27,6 +27,7 @@ route = module.exports = (app)->
       ct = md(i.content)
       [ct, amenu] = helper.converthtml ct
       i.html = ct
+      i.ds = helper.dateds i.create
       menu = menu.concat amenu
 
     res.render "index",

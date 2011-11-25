@@ -2,4 +2,6 @@
 h3 @title
 
 for i in @cs
-  article -> "#{i.html}"
+  article ->
+    text "#{i.html}"
+    span class:"public-date", -> "发表于#{ i.ds }"

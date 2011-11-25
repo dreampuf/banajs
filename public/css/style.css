@@ -128,22 +128,10 @@ nav > ul > li {
  
 /* Sprite map for sidebar icons */
 nav li h1 a {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
-    padding: 7px 20px 10px 32px;
-    background-image: url('../image/sidebar-icon.png');
-    background-repeat: no-repeat;
-    background-position: 3px 3px;
+    padding: 7px 20px 10px 2px;
 }
- 
-#nav li.nav_intro h1 a       { background-image: none; padding-left: 20px; }
-#nav li.nav_object h1 a      { background-position: 5px 3px; }
-#nav li.nav_function h1 a    { background-position: 5px -60px; }
-#nav li.nav_array h1 a       { background-position: 5px -28px; }
-#nav li.nav_types h1 a       { background-position: 5px -92px; }
-#nav li.nav_core h1 a        { background-position: 5px -124px; }
-#nav li.nav_other h1 a       { background-position: 5px -156px; }
-#nav li.nav_appendix h1 a    { background-position: 5px -188px; }
  
 nav a {
     color: white;
@@ -202,7 +190,7 @@ section header {
     border-bottom: 1px solid #8696a5;
 }
  
-#intro article, #intro header {
+section article:first-child, section header :first-child {
     padding-bottom: 0px;
     border-bottom: 0;
 }
@@ -215,6 +203,11 @@ section header:last-child {
 article ul, p {
     line-height: 1.6em;
     margin-bottom: 1.25em;
+}
+
+article .public-date {
+    font-size: 0.8em;
+    color: #808080;
 }
  
 pre, code {

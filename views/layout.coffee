@@ -35,11 +35,15 @@ html ->
 
         a id: 'top', href: '#content', title: 'Back to top', '#top'
         a id: 'hide_menu', class: 'tablet', 'Hide Menu'
+
       if @menu?
         for i in @menu
           ul ->
             li ->
-              h1 -> a href: i.href, "#{i.text}"
+              h1 ->
+                a href: i.href, ->
+                  span "✎"
+                  span "#{i.text}"
               for j in i.items
                 if j.method == "POST"
                   li -> a href: j.href, method:"POST", "#{ j.text }"
