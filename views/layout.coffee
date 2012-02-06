@@ -10,7 +10,7 @@ html ->
     #link rel: 'icon', href: '/favicon.png'
     link rel: 'stylesheet', href: '/css/style.css', media:'all'
     #link rel: 'stylesheet', href: '/css/print.css', media:'print'
-    ie 'lt IE9', ->
+    ie 'lt IE 9', ->
       script src: "/js/html5.js"
     #script src: "/js/jquery.min.js"
     script src: "http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"
