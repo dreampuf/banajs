@@ -77,3 +77,8 @@ route = module.exports = (app)->
 </feed>
 """
     res.end output
+
+
+  app.get "/about/", (req, res)->
+    res.render "about",
+      layout: false
