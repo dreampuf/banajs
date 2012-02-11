@@ -17,19 +17,26 @@ app.configure ()->
   #app.use express.compiler src: __dirname + '/public', enable: ['coffeescript']
   app.use express.bodyParser()
   app.use express.cookieParser()
-  app.use express.session
-    key: "banajs"
-    secret: "banajs"
   app.use express.methodOverride()
   #app.use app.router
   app.use express.static(__dirname + '/public')
 
   app.admin_path = '/admin'
+  app.upfile_path = 'public/upfile'
 
 app.configure 'development', ()->
   app.use express.errorHandler({ dumpExceptions: true, showStack: true })
+  #Session store put into third service for continue develop
+  MemcacheStore = require "./connect-memcached"
+  app.use express.session
+    key: "banajs"
+    secret: "banajs"
+    store: new MemcacheStore({memcache_host: "127.0.0.1", memcache_port: 11211})
 
 app.configure 'production', ()->
+  app.use express.session
+    key: "banajs"
+    secret: "banajs"
   #app.use(express.errorHandler())
 
 # Routes

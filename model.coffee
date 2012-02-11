@@ -20,7 +20,7 @@ class Model
     @db = JSON.parse data
 
     for i, k of methods
-      @constructor::[i] = k
+      @[i] = k
 
   sync:(cb)->
     data = JSON.stringify @db
@@ -32,7 +32,6 @@ class Model
       fs.writeFileSync @dbpath, data
 
   put:(obj, cb)->
-    console.log obj
     modifed = false
     if obj.id #modify
       for i, n in @db
@@ -52,6 +51,17 @@ Content = new Model "Content", {
   # modify
   # body
   # author
+  sort_by_create : (desc=false)->
+    smap = [1, 0, -1]
+    smap.reverse() if desc
+    ds = (i for i in @db)
+    ds.sort (a, b)->
+      if a.create > b.create then smap[0] else if a.create == b.create then smap[1] else smap[2]
+    ds
+  get : (d)->
+    if d.path
+      (i for i in @db when i.path == d.path)[0]
+    
 }
 User = new Model "User", {
   # email

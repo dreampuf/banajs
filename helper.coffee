@@ -206,6 +206,17 @@ helper = module.exports =
         "#{ arab2chi[d] }天前"
       else
         "#{od.getYear()+1900}-#{od.getMonth()+1}-#{od.getDate()}"
+  ispic: do ()->
+    fmap =
+      png: 1
+      jpg: 1
+      jpge: 1
+      gif: 1
+      tiff: 1
+      bmp: 1
+    (filename)->
+      fmap[filename[-3..]]
+    
       
 arab2chi =
   "1": "一", "2": "二", "3": "三", "4": "四", "5": "五"

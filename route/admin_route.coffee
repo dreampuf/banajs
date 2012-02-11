@@ -1,20 +1,25 @@
 # Admin Route of BanaJs
 # author: dreampuf(soddyque@gmail.com)
 
+sys = require "sys"
 utils = require "util"
 assert = require "assert"
 querystring = require "querystring"
 url = require "url"
+fs = require "fs"
+Path = require "path"
 md = require("node-markdown").Markdown
+formidable = require "formidable"
 model = require "../model"
 form = require "../form"
 rule = form.rule
-User = model.User
-Content = model.Content
 helper = require "../helper"
 
+User = model.User
+Content = model.Content
+
 class AdminError extends Error
-  constructor: (@message="Error", @statuscode=400)->
+  constructor: (@message="Error", @statuscode=500)->
     @name = "AdminError"
     Error.call @name
     Error.captureStackTrace @, arguments.callee
@@ -32,6 +37,7 @@ form_login = form.Form("Login")
 
 route = module.exports = (app)->
   admin_path = app.admin_path
+  upfile_path = app.upfile_path
   admin_menu = [{
     text: "管理"
     href: "#{ admin_path }/"
@@ -125,9 +131,10 @@ route = module.exports = (app)->
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
     path = req.params.path | 0
-    if not path #new content
+    if path is undefined #new content
       res.render "admin/edit",
         menu: admin_menu
+        admin_path: admin_path
         format: true
       return
 
@@ -139,6 +146,7 @@ route = module.exports = (app)->
       menu: admin_menu
       content: pd
       format: true
+      admin_path: admin_path
 
   app.post "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
     path = req.params.path | 0
@@ -151,6 +159,7 @@ route = module.exports = (app)->
         create: ctime
         modify: ctime
         author: req.session.admin.email
+        admin_path: admin_path
         view: 0
 
     else #modify content
@@ -162,6 +171,7 @@ route = module.exports = (app)->
       helper.update opd,
         title: helper.fetch_title ct_html
         content: pd.content
+        admin_path: admin_path
         modify: ctime
       pd = opd
       
@@ -175,3 +185,45 @@ route = module.exports = (app)->
           id : Content.id()
       Content.put pd
       res.redirect "#{admin_path}/"
+  
+  app.post "#{admin_path}/upfile/", admin_validate, (req, res)->
+    #f = new formidable.IncomingForm()
+    #files = []
+    #f.uploadDid = "../upfile/"
+    #f
+    #  .on "file", (file)->
+    #    console.log file
+    #  .on "end", ()->
+    #    res.end()
+    #f.parse req
+    if req.xhr and req.header("Content-Type") == "application/octet-stream"
+      chunks = []
+      size = 0
+      req.on "data", (chunk)->
+        chunks.push chunk
+        size += chunk.length
+      req.on "end", ()->
+        data = null
+        switch chunks.length
+          when 0 then data = new Buffer(0)
+          when 1 then data = chunks[0]
+          else
+            data = new Buffer(size)
+            pos = 0
+            for chunk in chunks
+              chunk.copy data, pos
+              pos += chunk.length
+
+        #Save The File
+        f = req.query.file
+        [_, basename, extendname] = f.split /^(.*?)(.[^.]*)?$/ig
+        seq = ""
+        while Path.existsSync "#{ upfile_path }/#{ basename + seq + extendname}"
+          seq = (seq|0)+1 + ""
+        target_path = "#{ basename + seq + extendname}"
+        fs.writeFile "#{ upfile_path }/#{target_path}", data, (err)->
+          if err
+            console.log "upfile error: ", err
+            res.json error: err.message
+          else
+            res.json success: true, url: target_path

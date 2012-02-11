@@ -10,6 +10,9 @@ form id:"login", method:"post", ->
   input type:"submit", value:"提交"
 
 coffeescript ->
+  $(document.body).keydown (e)->
+    if e.keyCode == 13
+      $("#login").submit()
   locs = location.search
   if locs
     c = location.getParameter "c"

@@ -1,54 +1,54 @@
-/* -------------------------------------------------------------------
-// markItUp!
-// By Jay Salvat - http://markitup.jaysalvat.com/
-// ------------------------------------------------------------------*/
 .markItUp .markItUpButton1 a {
-	background-image:url(/js/mup/images/h1.png); 
+  background:url(/js/mup/muptool.png) no-repeat 2px 0px;
 }
 .markItUp .markItUpButton2 a {
-	background-image:url(/js/mup/images/h2.png); 
+  background:url(/js/mup/muptool.png) no-repeat -20px 0px;
 }
 .markItUp .markItUpButton3 a {
-	background-image:url(/js/mup/images/h3.png); 
+  background:url(/js/mup/muptool.png) no-repeat -42px 0px;
 }
 .markItUp .markItUpButton4 a {
-	background-image:url(/js/mup/images/h4.png); 
+  background:url(/js/mup/muptool.png) no-repeat -64px 0px;
 }
 .markItUp .markItUpButton5 a {
-	background-image:url(/js/mup/images/h5.png); 
+  background:url(/js/mup/muptool.png) no-repeat -87px 0px;
 }
 .markItUp .markItUpButton6 a {
-	background-image:url(/js/mup/images/h6.png); 
+  background:url(/js/mup/muptool.png) no-repeat -109px 0px;
 }
 
 .markItUp .markItUpButton7 a {
-	background-image:url(/js/mup/images/bold.png);
+  background:url(/js/mup/muptool.png) no-repeat -219px 0px;
 }
 .markItUp .markItUpButton8 a {
-	background-image:url(/js/mup/images/italic.png);
+  background:url(/js/mup/muptool.png) no-repeat -238px 0px;
 }
 
 .markItUp .markItUpButton9 a {
-	background-image:url(/js/mup/images/list-bullet.png);
+  background:url(/js/mup/muptool.png) no-repeat -173px 0px;
 }
 .markItUp .markItUpButton10 a {
-	background-image:url(/js/mup/images/list-numeric.png);
+  background:url(/js/mup/muptool.png) no-repeat -148px 0px;
 }
 
 .markItUp .markItUpButton11 a {
-	background-image:url(/js/mup/images/picture.png); 
+  background:url(/js/mup/muptool.png) no-repeat -348px 0px;
 }
 .markItUp .markItUpButton12 a {
-	background-image:url(/js/mup/images/link.png);
+  background:url(/js/mup/muptool.png) no-repeat -130px 0px;
 }
 
 .markItUp .markItUpButton13 a	{
-	background-image:url(/js/mup/images/quotes.png);
+  background:url(/js/mup/muptool.png) no-repeat -303px 0px;
 }
 .markItUp .markItUpButton14 a	{
-	background-image:url(/js/mup/images/code.png);
+  background:url(/js/mup/muptool.png) no-repeat -195px 0px;
+}
+
+.markItUp .markItUpButton15 a	{
+  background:url(/js/mup/muptool.png) no-repeat -375px 0px;
 }
 
 .markItUp .preview a {
-	background-image:url(/js/mup/images/preview.png);
+  background:url(/js/mup/muptool.png) no-repeat -325px 0px;
 }

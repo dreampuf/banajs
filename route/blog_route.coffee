@@ -2,10 +2,18 @@
 # author: dreampuf(soddyque@gmail.com)
 
 utils = require "util"
+Path = require "path"
 md = require("node-markdown").Markdown
 model = require "../model"
 Content = model.Content
 helper = require "../helper"
+
+class BlogError extends Error
+  constructor: (@message="Error", @statuscode=404)->
+    @name = "BlogError"
+    Error.call @name
+    Error.captureStackTrace @, arguments.callee
+    @
 
 hard_menu = [{
     text: "三四岁"
@@ -20,8 +28,9 @@ hard_menu = [{
   }]
 
 route = module.exports = (app)->
+  upfile_path = app.upfile_path
   app.get "/", (req, res)->
-    cs = Content.db
+    cs = Content.sort_by_create true
     menu = []
     for i in cs
       ct = md(i.content)
@@ -34,7 +43,12 @@ route = module.exports = (app)->
       cs: cs
       menu: menu
       format: true
-  
+
+
+  app.get "/about/", (req, res)->
+    res.render "about",
+      layout: false
+
   app.get "/feed/", (req, res)->
     cs = Content.db
 
@@ -78,7 +92,21 @@ route = module.exports = (app)->
 """
     res.end output
 
+  app.get "/upfile/:path", (req, res)->
+    fullpath = "#{upfile_path}/#{req.params.path}"
+    Path.exists fullpath, (exists)->
+      if exists
+        (if helper.ispic(fullpath) then res.sendfile else res.attachment)(fullpath)
+      else
+        res.end()
+        
 
-  app.get "/about/", (req, res)->
-    res.render "about",
-      layout: false
+  app.get /\/(.*)/gi, (req, res)->
+    path = req.params[0]
+    cs = Content.get path:path
+    if cs is undefined
+      #throw new BlogError "Not Find #{ path }"
+      console.log "Not Find '#{ path }'"
+      return res.end()
+
+    res.end cs.content
