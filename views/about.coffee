@@ -137,7 +137,6 @@ body     { pointer-events: none; }
             @dslen++
             @ds.push [k, v]
             max = v if max < v
-          console.log max
           @dmax = max
       
         draw:()->
@@ -175,7 +174,6 @@ body     { pointer-events: none; }
             dx = if tx>0 then 1 else -1
             dy = if ty>0 then 1 else -1
             dr = v/dmax
-            console.log v, dmax, dr
             text = paper.text cx+tx, cy+ty, k
             #dd = Math.sqrt(Math.pow(text.attr("width"), 2) + Math.pow(text.attr("height"), 2))
             text.attr
