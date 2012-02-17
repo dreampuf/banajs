@@ -3,12 +3,12 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-      "express": "2.4.6"
-    , "node-markdown": "0.1.0"
-    , "coffeekup": "0.3.0"
-    , "user-agent": "1.0.4"
-    , "libxmljs": "0.4.2"
-    , "request": "2.1.1"
-    , "formidable": "1.0.8"
+      "express": ">=2.5.8"
+    , "node-markdown": ">=0.1.0"
+    , "coffeekup": ">=0.3.1"
+    , "user-agent": ">=1.0.4"
+    , "libxmljs": ">=0.5.3"
+    , "request": ">=2.1.1"
+    , "formidable": ">=1.0.9"
   }
 }

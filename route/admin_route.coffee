@@ -1,7 +1,6 @@
 # Admin Route of BanaJs
 # author: dreampuf(soddyque@gmail.com)
 
-sys = require "sys"
 utils = require "util"
 assert = require "assert"
 querystring = require "querystring"
@@ -51,6 +50,7 @@ route = module.exports = (app)->
     }]
   }]
   admin_validate = (req, res, next)->
+    console.log req.path, req.session.admin is undefined
     if req.session.admin?
       next()
     else
@@ -130,7 +130,7 @@ route = module.exports = (app)->
       format: true
 
   app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
-    path = req.params.path | 0
+    path = req.params.path
     if path is undefined #new content
       res.render "admin/edit",
         menu: admin_menu
@@ -138,6 +138,7 @@ route = module.exports = (app)->
         format: true
       return
 
+    path = path | 0
     pd = (i for i in Content.db when path == i.id)[0]
     if not pd
       throw new AdminError("invalid content")
