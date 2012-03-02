@@ -104,14 +104,10 @@ route = module.exports = (app)->
         res.end()
         
 
-  app.get /\/(.*)/gi, (req, res)->
-    console.log req.params
+  app.get "/*", (req, res)->
     path = req.params[0]
-    console.log path
     i = Content.get path:path
-    console.log i, "Undefined"
     if i is undefined
-      #throw new BlogError "Not Find #{ path }"
       console.log "Not Find '#{ path }'"
       return res.end()
 
@@ -119,6 +115,6 @@ route = module.exports = (app)->
     [ct, amenu] = helper.converthtml ct
     i.html = ct
     i.ds = helper.dateds i.create
-    return res.render "view",
+    res.render "view",
       i: i
       menu: amenu

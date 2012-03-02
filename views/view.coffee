@@ -9,7 +9,6 @@ article ->
   script """
     var disqus_shortname = 'bana',
         disqus_identifier = '#{ @i.path }',
-        disqus_url = '#{ @i.path }',
         disqus_developer = 1;
 
     (function() {
