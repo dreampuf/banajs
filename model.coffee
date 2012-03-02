@@ -61,7 +61,6 @@ Content = new Model "Content", {
   get : (d)->
     if d.path
       (i for i in @db when i.path == d.path)[0]
-    
 }
 User = new Model "User", {
   # email

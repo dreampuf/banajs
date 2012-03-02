@@ -29,6 +29,9 @@ hard_menu = [{
 
 route = module.exports = (app)->
   upfile_path = app.upfile_path
+  app.get "/favicon.ico", (req, res)->
+    res.sendfile "public/img/favicon.ico"
+
   app.get "/", (req, res)->
     cs = Content.sort_by_create true
     menu = []
@@ -102,11 +105,20 @@ route = module.exports = (app)->
         
 
   app.get /\/(.*)/gi, (req, res)->
+    console.log req.params
     path = req.params[0]
-    cs = Content.get path:path
-    if cs is undefined
+    console.log path
+    i = Content.get path:path
+    console.log i, "Undefined"
+    if i is undefined
       #throw new BlogError "Not Find #{ path }"
       console.log "Not Find '#{ path }'"
       return res.end()
 
-    res.end cs.content
+    ct = md(i.content)
+    [ct, amenu] = helper.converthtml ct
+    i.html = ct
+    i.ds = helper.dateds i.create
+    return res.render "view",
+      i: i
+      menu: amenu
