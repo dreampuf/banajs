@@ -209,6 +209,11 @@ article .public-date {
     font-size: 0.8em;
     color: #808080;
 }
+
+article .public-url {
+    font-size: 0.8em;
+    color: #808080;
+}
  
 pre, code {
     font-family: Consolas, Inconsolata, 'Bitstream Vera Sans Mono', Menlo, Monaco, 'Andale Mono', 'Courier New', monospace;

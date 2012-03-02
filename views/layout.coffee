@@ -62,8 +62,7 @@ html ->
       a id: 'show_menu', 'show menu'
 
 
-    section id: 'content', ->
-      @body
+    text @body
 
     footer ->
       p "BanaJS"
