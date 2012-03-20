@@ -61,6 +61,12 @@ Content = new Model "Content", {
   get : (d)->
     if d.path
       (i for i in @db when i.path == d.path)[0]
+
+  id : ()->
+    max = 0
+    for i in @db
+      max = if max > i.id then max else i.id
+    max + 1
 }
 User = new Model "User", {
   # email

@@ -50,7 +50,7 @@ route = module.exports = (app)->
     }]
   }]
   admin_validate = (req, res, next)->
-    console.log req.path, req.session.admin is undefined
+    #console.log req.path, req.session.admin is undefined
     if req.session.admin?
       next()
     else
