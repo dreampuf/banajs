@@ -64,8 +64,8 @@ helper = module.exports =
           else
             push_node tree, i
 
-          section = new libxml.Element tr, "section",
-            id: i.text()
+          section = new libxml.Element tr, "section"
+          section.attr "id", i.text() #  id: i.text()
           header = new libxml.Element(tr, "header")
           section.addChild header
           nt = i.nextSibling()

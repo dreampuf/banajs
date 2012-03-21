@@ -176,11 +176,14 @@ nav a:hover, nav ul.active a:hover, nav a, nav li {
 #nav_mobile {
     display: none;
 }
+
+#content {
+    margin-right: 410px;
+}
  
 section {
     border-bottom: 4px dotted #8696a5;
     font-size: 16px;
-    margin-right: 410px;
     position: relative;
 }
  
