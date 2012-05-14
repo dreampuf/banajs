@@ -113,7 +113,7 @@ body     { padding: 15px; }
         a id:"mailme", "Are you spam?"
     
     pre class: "personal_experience", """
-研究方向: <br />并行处理，喜欢使用multiprocess（不仅仅只有它）进行多进程并行开发，知道锁的好处与麻烦点，不能抑制对加速比的追求。<br />数据挖掘，对于数据充满饥渴，爬虫，格式化，存储，检索，挖掘，应用。
+研究方向: <br />并行处理，喜欢使用（但不仅有）multiprocess进行多进程并行开发，知道锁的好处与麻烦点，不能抑制对加速比的追求。<br />数据挖掘，对于数据充满饥渴，爬虫，格式化，存储，检索，挖掘，应用。
 
 Personal Repository: <a href="https://github.com/dreampuf/">https://github.com/dreampuf/</a>
 
