@@ -86,18 +86,19 @@ a:hover {
     text-shadow: -1px -1px 2px rgba(100,100,100,0.5);
 }
 
-body     { pointer-events: none; }
-.clear { clear:both; }
-#skillradar { float:left; }
-#baseinfo { float: left; width: 200px; padding-top: 50px; padding-left: 10px;}
+body     { padding: 15px; }
+#skillradar { float:right; }
+#baseinfo { width: 200px; padding-top: 50px; padding-left: 10px;}
 #baseinfo dd { padding-top: 3px;} 
+.personal_experience { margin-top: 10px; }
+
 """
   body ->
     div id:"skillradar"
     div id:"baseinfo", ->
       dd ->
         span "姓名:"
-        span "黄鑫鑫"
+        span "黄鑫"
       dd ->
         span "性别:"
         span "男"
@@ -107,12 +108,22 @@ body     { pointer-events: none; }
       dd ->
         span "专业:"
         span "软件工程"
-    div class: "clear"
+      dd ->
+        span "Email:"
+        a id:"mailme", "Are you spam?"
     
-    pre """
-2011.11~至今: 果壳网新系统开发....
+    pre class: "personal_experience", """
+研究方向: <br />并行处理，喜欢使用multiprocess（不仅仅只有它）进行多进程并行开发，知道锁的好处与麻烦点，不能抑制对加速比的追求。<br />数据挖掘，对于数据充满饥渴，爬虫，格式化，存储，检索，挖掘，应用。
 
-2011.3~2011.10: 负责果壳网Python后台实现.主要负责缓存系统维护.
+Personal Repository: <a href="https://github.com/dreampuf/">https://github.com/dreampuf/</a>
+
+2012.03~2012.04: UBB格式内容渲染为适合微博转发的组件。
+
+2012.01~2012.02: 负责果壳网问答相关优化，@功能数据端开发。问答提问相似检索实现randing部分。
+
+2011.11~2011.12: 负责果壳网问答开发项目.
+
+2011.3~2011.10: 负责果壳网Python中间层实现.主要负责缓存系统维护.
 
 2011.1~2011.2 :  负责果壳网v2前台个人主页模块.架构同上.
 
@@ -202,9 +213,11 @@ body     { pointer-events: none; }
         "Csharp": 70
         "JavaScript": 80
         "Python": 90
-        "Nginx": 10
-        "Socket": 20
-        "NPL": 15
-        "Algorithm": 30
-        "Concurrent": 40
+        "Algorithm": 50
+        "Concurrent": 50
       rg.draw()
+
+      mailme = document.getElementById "mailme"
+      my_mail = "soddyque" + "@" + "gmail.com"
+      mailme.innerText = my_mail
+      mailme.href = "mailto:" + my_mail
