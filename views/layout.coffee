@@ -65,7 +65,9 @@ html ->
     text @body
 
     footer ->
-      p "BanaJS"
+      p ->
+        text "BanaJS"
+        a href:"https://plus.google.com/109999639752347046237/about", "关于作者"
       script """
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-5293693-3']);
