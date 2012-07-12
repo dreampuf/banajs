@@ -27,11 +27,11 @@ app.configure ()->
 app.configure 'development', ()->
   app.use express.errorHandler({ dumpExceptions: true, showStack: true })
   #Session store put into third service for continue develop
-  MemcacheStore = require "connect-memcached"
-  app.use express.session
-    key: "banajs"
-    secret: "banajs"
-    store: new MemcacheStore()
+  #MemcacheStore = require "connect-memcached"
+  #app.use express.session
+  #  key: "banajs"
+  #  secret: "banajs"
+  #  store: new MemcacheStore()
 
 app.configure 'production', ()->
   app.use express.session
