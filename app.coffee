@@ -5,6 +5,10 @@
 
 express = require('express')
 app = module.exports = express.createServer()
+coffeekup = require 'coffeekup'
+coffeekup.tags = coffeekup.tags.concat ["feed", "subtitle", "id", "updated", "author", "name", "rights"]
+
+config = require './config'
 admin_route = require('./route/admin_route')
 blog_route = require('./route/blog_route')
 
@@ -13,7 +17,7 @@ app.configure ()->
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'coffee'
   app.set 'prodir', __dirname
-  app.register('.coffee', require('coffeekup').adapters.express)
+  app.register('.coffee', coffeekup.adapters.express)
   #app.use express.compiler src: __dirname + '/public', enable: ['coffeescript']
   app.use express.bodyParser()
   app.use express.cookieParser()
@@ -21,22 +25,20 @@ app.configure ()->
   #app.use app.router
   app.use express.static(__dirname + '/public')
 
-  app.admin_path = '/admin'
-  app.upfile_path = 'public/upfile'
+  app.use express.session
+    key: "banajs"
+    secret: "banajs"
+
+  app.use (req, res, next)->
+    res.local "config", config
+    next()
 
 app.configure 'development', ()->
   app.use express.errorHandler({ dumpExceptions: true, showStack: true })
   #Session store put into third service for continue develop
-  #MemcacheStore = require "connect-memcached"
-  #app.use express.session
-  #  key: "banajs"
-  #  secret: "banajs"
-  #  store: new MemcacheStore()
+    #store: new MemcacheStore()
 
 app.configure 'production', ()->
-  app.use express.session
-    key: "banajs"
-    secret: "banajs"
   #app.use(express.errorHandler())
 
 # Routes

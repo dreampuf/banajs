@@ -1,12 +1,12 @@
 doctype 5
 html ->
   head ->
-    title if @title? then "#{@title}" else "Bana"
+    title if @title? then "#{@title}" else @config.title
     meta charset: 'utf-8'
     meta(name: 'description', content: @description) if @description?
     link(rel: 'canonical', href: @canonical) if @canonical?
     link(href: '/feed/', ref:'alternate', title:'Bana', type:'application/atom+xml')
-    link(href: '/feed/', ref:'alternate', title:'Bana', type:'application/rss+xml')
+    link(href: '/rss/', ref:'alternate', title:'Bana', type:'application/rss+xml')
 
     #link rel: 'icon', href: '/favicon.png'
     link rel: 'stylesheet', href: '/css/style.css', media:'all'
@@ -16,8 +16,6 @@ html ->
     #script src: "/js/jquery.min.js"
     script src: "http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"
 
-    #style '''
-    #'''
     coffeescript ->
       $ ()->
         $("a[method='POST']").each (n, i)->
@@ -51,8 +49,6 @@ html ->
                 else
                   li -> a href: j.href, "#{ j.text }"
 
-
-
     nav id: 'nav_mobile', ->
       a id: 'nav_prev_section', href: '#', ->
         text 'prev section'
@@ -66,16 +62,16 @@ html ->
     text @body
 
     footer ->
-      p ->
-        text "BanaJS"
-        a href:"https://plus.google.com/109999639752347046237/about", "关于作者"
+      span ->
+        text @config.title
+        a href: @config.gplus_url, "关于作者" if @config.gplus_url
+      p @config.dsc if @config.dsc
       script """
 var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-5293693-3']);
-_gaq.push(['_setDomainName', 'huangx.in']);
+_gaq.push(['_setAccount', '#{@config.ga}']);
 _gaq.push(['_trackPageview']);
 (function() {
   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
   ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();"""
+})();""" if @config.ga

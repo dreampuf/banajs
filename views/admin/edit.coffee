@@ -17,9 +17,6 @@ style -> """
   text-align: center;
 }
 """
-script -> """
-var admin_path = "#{@admin_path}";
-"""
 coffeescript ->
   picext_mapping =
     png: 1
@@ -34,7 +31,7 @@ coffeescript ->
     dct.markItUp(mySettings)
     up = new qq.FileUploader
       element: document.getElementById "fileup_show"
-      action: "#{admin_path}/upfile/"
+      action: "/admin/upfile/"
       onComplete: (id, name, resp)->
         tagl = "#{ if picext_mapping[name[-3..]] then "!" else "" }["
         tagr = "](/upfile/#{encodeURIComponent(resp.url)})"

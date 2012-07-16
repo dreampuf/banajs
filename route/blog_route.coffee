@@ -4,6 +4,7 @@
 utils = require "util"
 Path = require "path"
 md = require("node-markdown").Markdown
+config = require "../config"
 model = require "../model"
 Content = model.Content
 helper = require "../helper"
@@ -28,7 +29,6 @@ hard_menu = [{
   }]
 
 route = module.exports = (app)->
-  upfile_path = app.upfile_path
   app.get "/favicon.ico", (req, res)->
     res.sendfile "public/img/favicon.ico"
 
@@ -47,7 +47,6 @@ route = module.exports = (app)->
       menu: menu
       format: true
 
-
   app.get "/about/", (req, res)->
     res.render "about",
       layout: false
@@ -60,49 +59,25 @@ route = module.exports = (app)->
     _.setTime(last_update)
     last_update = _.toISOString()
 
-    entrys = ["""
-    <entry>
-        <link href="http://huangx.in/#{ i.path }"/>
-        <id>http://huangx.in/#{ i.path }</id>
-        <title>#{ i.title }</title>
-        <content type="html">    
-        #{ helper.html_escape(md(i.content)) }
-        </content>
-        <author>
-            <name>Dreampuf</name>
-        </author>
-        <updated>#{ helper.int2date(i.modify).toISOString() }</updated>
-    </entry>""" for i in cs]
+    entrys = []
+    for i in cs
+      i.content = helper.html_escape(md(i.content))
+      i.modify = helper.int2date(i.modify).toISOString()
 
-    output = """
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-cn" xml:base="http://huangx.in">
-    <title>Bana</title>
-    <subtitle>A programmer's self-learning</subtitle>
-    <id></id>
-    <link href="http://huangx.in" rel="self"/>
-    <link href="http://huangx.in" rel="alternate" type="text/html"/>
-    <link rel="hub" href="http://blogsearch.google.com/ping/RPC2"/>
-    <link rel="hub" href="http://rpc.pingomatic.com/"/>
-    <link rel="hub" href="http://blogsearch.google.com/ping/RPC2"/>
-    <link rel="hub" href="http://ping.baidu.com/ping/RPC2"/>
-    <updated>#{ last_update }</updated>
-    <author>
-        <name>Dreampuf</name>
-    </author>
-    #{ entrys.join "" }
-</feed>
-"""
-    res.end output
+    res.contentType "atom"
+
+    res.render "feed",
+      layout: false
+      entrys: entrys
+      last_update: last_update
 
   app.get "/upfile/:path", (req, res)->
-    fullpath = "#{upfile_path}/#{req.params.path}"
+    fullpath = "#{config.upfile_dir}/#{req.params.path}"
     Path.exists fullpath, (exists)->
       if exists
         (if helper.ispic(fullpath) then res.sendfile else res.attachment)(fullpath)
       else
         res.end()
-        
 
   app.get "/*", (req, res)->
     path = req.params[0]

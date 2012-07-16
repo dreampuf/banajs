@@ -35,17 +35,15 @@ form_login = form.Form("Login")
              .field("pwd", "Password", rule.required())
 
 route = module.exports = (app)->
-  admin_path = app.admin_path
-  upfile_path = app.upfile_path
   admin_menu = [{
     text: "管理"
-    href: "#{ admin_path }/"
+    href: "/admin/"
     items: [{
       text: "添加"
-      href: "#{ admin_path }/edit/"
+      href: "/admin/edit/"
     },{
       text: "登出"
-      href: "#{ admin_path }/logout/"
+      href: "/admin/logout/"
       method: "POST"
     }]
   }]
@@ -60,7 +58,7 @@ route = module.exports = (app)->
     if err instanceof AdminError
       #console.log req
       #referer = req.header "referer"
-      rurl = "#{admin_path}/login/"
+      rurl = "/admin/login/"
       data = {}
       if req.url
         data["c"] = url.parse(req.url).pathname
@@ -79,13 +77,13 @@ route = module.exports = (app)->
       next(err)
 
 
-  app.get "#{admin_path}/login/", (req, res)->
+  app.get "/admin/login/", (req, res)->
     if User.db.length == 0
-      return res.redirect "#{ admin_path }/reg/"
+      return res.redirect "/admin/reg/"
 
     res.render "admin/login"
 
-  app.post "#{admin_path}/login/", (req, res)->
+  app.post "/admin/login/", (req, res)->
     email= req.body.email
     pwd = req.body.pwd
     ret = model.User.check email, helper.sha1(pwd)
@@ -96,19 +94,19 @@ route = module.exports = (app)->
     if req.xhr #登录前后续处理
       res.json if ret then true else false
     else
-      res.redirect if ret then "#{admin_path}/" else
-        "#{admin_path}/login/#ValidateError"
+      res.redirect if ret then "/admin/" else
+        "/admin/login/#ValidateError"
 
-  app.post "#{ admin_path }/logout/", admin_validate, (req, res)->
+  app.post "/admin/logout/", admin_validate, (req, res)->
     delete req.session.admin
     res.redirect "/"
 
-  app.get "#{ admin_path }/reg/", (req, res)->
+  app.get "/admin/reg/", (req, res)->
     if User.db.length != 0
       throw new AdminError("You had a Admin User")
     res.render "admin/reg"
 
-  app.post "#{ admin_path }/reg/", (req, res)->
+  app.post "/admin/reg/", (req, res)->
     form = form_reg.validate req.body
     if !form.isValid()
       return res.send form.errors(), 400
@@ -119,22 +117,20 @@ route = module.exports = (app)->
     u.password = helper.sha1 u.password
     delete u.repassword
     User.put u, ()->
-      res.redirect "#{ admin_path }/login/"
+      res.redirect "/admin/login/"
 
-  app.get "#{admin_path}/", admin_validate, (req, res)->
+  app.get "/admin/", admin_validate, (req, res)->
     contents = Content.db
     res.render "admin/admin",
       menu: admin_menu
       ls: contents
-      admin_path: admin_path
       format: true
 
-  app.get "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
+  app.get "/admin/edit/(:path)?", admin_validate, (req, res)->
     path = req.params.path
     if path is undefined #new content
       res.render "admin/edit",
         menu: admin_menu
-        admin_path: admin_path
         format: true
       return
 
@@ -147,9 +143,8 @@ route = module.exports = (app)->
       menu: admin_menu
       content: pd
       format: true
-      admin_path: admin_path
 
-  app.post "#{admin_path}/edit/(:path)?", admin_validate, (req, res)->
+  app.post "/admin/edit/(:path)?", admin_validate, (req, res)->
     path = req.params.path | 0
     pd = req.body
     ctime = (new Date).getTime()
@@ -160,7 +155,6 @@ route = module.exports = (app)->
         create: ctime
         modify: ctime
         author: req.session.admin.email
-        admin_path: admin_path
         view: 0
 
     else #modify content
@@ -172,7 +166,6 @@ route = module.exports = (app)->
       helper.update opd,
         title: helper.fetch_title ct_html
         content: pd.content
-        admin_path: admin_path
         modify: ctime
       pd = opd
       
@@ -185,9 +178,9 @@ route = module.exports = (app)->
         helper.update pd,
           id : Content.id()
       Content.put pd
-      res.redirect "#{admin_path}/"
+      res.redirect "/admin/"
   
-  app.post "#{admin_path}/upfile/", admin_validate, (req, res)->
+  app.post "/admin/upfile/", admin_validate, (req, res)->
     #f = new formidable.IncomingForm()
     #files = []
     #f.uploadDid = "../upfile/"
@@ -219,10 +212,10 @@ route = module.exports = (app)->
         f = req.query.file
         [_, basename, extendname] = f.split /^(.*?)(.[^.]*)?$/ig
         seq = ""
-        while Path.existsSync "#{ upfile_path }/#{ basename + seq + extendname}"
+        while Path.existsSync "#{ config.upfile_dir }/#{ basename + seq + extendname}"
           seq = (seq|0)+1 + ""
         target_path = "#{ basename + seq + extendname}"
-        fs.writeFile "#{ upfile_path }/#{target_path}", data, (err)->
+        fs.writeFile "#{ config.upfile_dir }/#{target_path}", data, (err)->
           if err
             console.log "upfile error: ", err
             res.json error: err.message
