@@ -1,8 +1,8 @@
 doctype 5
 html ->
   head ->
-    title if @title? then "#{@title}" else @config.title
     meta charset: 'utf-8'
+    title if @title? then "#{@title}" else @config.title
     meta(name: 'description', content: @description) if @description?
     link(rel: 'canonical', href: @canonical) if @canonical?
     link(href: '/feed/', ref:'alternate', title:'Bana', type:'application/atom+xml')

@@ -13,6 +13,7 @@ model = require "../model"
 form = require "../form"
 rule = form.rule
 helper = require "../helper"
+forever = require "forever"
 
 User = model.User
 Content = model.Content
@@ -249,4 +250,6 @@ route = module.exports = (app)->
     return res.redirect("/admin/") if not code.trim() or not file.trim() or file[-3..] not in editable
     fs.writeFile file, code.replace(/\cM/g, "").replace("\r\n", "\n"), (err)->
       console.log err if err
-      res.redirect("/admin/")
+      forever.list true, (process)->
+        console.log process
+        res.redirect("/admin/")
