@@ -43,9 +43,14 @@ app.configure 'development', ()->
 
 app.configure 'production', ()->
   #app.use(express.errorHandler())
+  RedisStore = require('connect-redis')(express)
   app.use express.session
     key: "banajs"
     secret: "banajs"
+    store: new RedisStore
+    cookie:
+      path: "/"
+      httpOnly: true
 
 # Routes
 admin_route(app)
