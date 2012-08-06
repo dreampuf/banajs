@@ -13,7 +13,7 @@ model = require "../model"
 form = require "../form"
 rule = form.rule
 helper = require "../helper"
-forever = require "forever"
+exec = require('child_process').exec
 
 User = model.User
 Content = model.Content
@@ -245,11 +245,11 @@ route = module.exports = (app)->
 
   app.post "/admin/style/", admin_validate, (req, res)->
     file = req.param("file")
-    console.log file
     code = req.param("code")
     return res.redirect("/admin/") if not code.trim() or not file.trim() or file[-3..] not in editable
     fs.writeFile file, code.replace(/\cM/g, "").replace("\r\n", "\n"), (err)->
       console.log err if err
-      forever.list true, (process)->
-        console.log process
-        res.redirect("/admin/")
+      exec "forever list", (err, stdout, stderr)->
+        console.log arguments
+
+      res.redirect("/admin/")
