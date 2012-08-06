@@ -9,6 +9,7 @@ url = require "url"
 md = require("node-markdown").Markdown
 libxml = require "libxmljs"
 request = require "request"
+fs = require "fs"
 
 
 helper = module.exports = 
@@ -216,8 +217,25 @@ helper = module.exports =
       bmp: 1
     (filename)->
       fmap[filename[-3..]]
-    
-      
+
+  walk: (dir, done)->
+    result = []
+    fs.readdir dir, (err, list)->
+      return done(err) if err
+      pending = list.length
+      return done(null, result) if not pending
+      list.forEach (file)->
+        file = dir + '/' + file
+        fs.stat file, (err, stat)->
+          if stat and stat.isDirectory()
+            helper.walk file, (err, res)->
+              console.log err if err
+              result = result.concat res
+              done(null, result) if not --pending
+          else
+            result.push file
+            done(null, result) if not --pending
+
 arab2chi =
   "1": "一", "2": "二", "3": "三", "4": "四", "5": "五"
   "6": "六", "7": "七", "8": "八", "9": "九", "0": "〇"

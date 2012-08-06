@@ -7,6 +7,7 @@ express = require('express')
 app = module.exports = express.createServer()
 coffeekup = require 'coffeekup'
 coffeekup.tags = coffeekup.tags.concat ["feed", "subtitle", "id", "updated", "author", "name", "rights"]
+MemcachedStore = require('connect-memcached')(express)
 
 config = require './config'
 admin_route = require('./route/admin_route')
@@ -25,9 +26,9 @@ app.configure ()->
   #app.use app.router
   app.use express.static(__dirname + '/public')
 
-  app.use express.session
-    key: "banajs"
-    secret: "banajs"
+  #app.use express.session
+  #  key: "banajs"
+  #  secret: "banajs"
 
   app.use (req, res, next)->
     res.local "config", config
@@ -36,10 +37,15 @@ app.configure ()->
 app.configure 'development', ()->
   app.use express.errorHandler({ dumpExceptions: true, showStack: true })
   #Session store put into third service for continue develop
-    #store: new MemcacheStore()
+  app.use express.session
+    secret: "banajs"
+    store: new MemcachedStore()
 
 app.configure 'production', ()->
   #app.use(express.errorHandler())
+  app.use express.session
+    key: "banajs"
+    secret: "banajs"
 
 # Routes
 admin_route(app)

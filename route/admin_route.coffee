@@ -225,18 +225,28 @@ route = module.exports = (app)->
           else
             res.json success: true, url: target_path
 
+  editable = [".js", "css", "fee", "tml"]
   app.get "/admin/style/", admin_validate, (req, res)->
-    fs.readFile "public/css/style.css", "utf-8", (err, data)->
-      if err
-        console.log "style edite error:", err
-        res.redirect "/admin"
-      else
-        res.render "admin/style",
-          style: data
+    file = req.param("file") or "public/css/style.css"
+    helper.walk "public", (err, statics)->
+      console.log err if err
+      helper.walk "views", (err, files)->
+        console.log err if err
+        fs.readFile file, "utf-8", (err, data)->
+          if err
+            console.log "style edite error:", err
+            res.redirect "/admin"
+          else
+            res.render "admin/style",
+              files: (i for i in statics.concat(files) when i[-3..] in editable)
+              file: file
+              style: data
 
   app.post "/admin/style/", admin_validate, (req, res)->
-    code = req.body.code
-    return res.redirect("/admin/") if not code.trim()
-    fs.writeFile "public/css/style.css", code, (err)->
+    file = req.param("file")
+    console.log file
+    code = req.param("code")
+    return res.redirect("/admin/") if not code.trim() or not file.trim() or file[-3..] not in editable
+    fs.writeFile file, code.replace(/\cM/g, "").replace("\r\n", "\n"), (err)->
       console.log err if err
       res.redirect("/admin/")

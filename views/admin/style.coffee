@@ -31,6 +31,8 @@ coffeescript ->
     bmp: 1
     
   $ ()->
+    file_select = $("select[name='file']").change (e)->
+      location.href = "/admin/style/?file=" + e.target.value
     dct = $ "#code"
     dct.css("bgcolor", "#FFF")
     cm = CodeMirror.fromTextArea dct[0],
@@ -52,6 +54,13 @@ coffeescript ->
 
 
 form method:"POST", ->
+  select name:"file", ->
+    for file in @files
+      if file == @file
+        option value:"#{file}", selected: "selected", file
+      else
+        option value:"#{file}", file
+    
   div ->
     textarea id:"code", name:"code", (if @style then "#{@style}" else "")
   
