@@ -39,6 +39,9 @@ route = module.exports = (app)->
     text: "管理"
     href: "/admin/"
     items: [{
+      text: "样式管理"
+      href: "/admin/style/"
+    },{
       text: "添加"
       href: "/admin/edit/"
     },{
@@ -221,3 +224,19 @@ route = module.exports = (app)->
             res.json error: err.message
           else
             res.json success: true, url: target_path
+
+  app.get "/admin/style/", admin_validate, (req, res)->
+    fs.readFile "public/css/style.css", "utf-8", (err, data)->
+      if err
+        console.log "style edite error:", err
+        res.redirect "/admin"
+      else
+        res.render "admin/style",
+          style: data
+
+  app.post "/admin/style/", admin_validate, (req, res)->
+    code = req.body.code
+    return res.redirect("/admin/") if not code.trim()
+    fs.writeFile "public/css/style.css", code, (err)->
+      console.log err if err
+      res.redirect("/admin/")
