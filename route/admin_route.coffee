@@ -238,7 +238,7 @@ route = module.exports = (app)->
             res.redirect "/admin"
           else
             res.render "admin/style",
-              files: (i for i in statics.concat(files) when i[-3..] in editable)
+              files: (i for i in statics.concat(files) when i[-3..] in editable).concat(["config.coffee"])
               file: file
               style: data
 
