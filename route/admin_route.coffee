@@ -249,7 +249,8 @@ route = module.exports = (app)->
     return res.redirect("/admin/") if not code.trim() or not file.trim() or file[-3..] not in editable
     fs.writeFile file, code.replace(/\cM/g, "").replace("\r\n", "\n"), (err)->
       console.log err if err
-      exec "forever list", (err, stdout, stderr)->
-        console.log arguments
+      if file[-3..] == "fee"
+        exec "forever list", (err, stdout, stderr)->
+          console.log arguments
 
       res.redirect("/admin/")
