@@ -18,7 +18,7 @@ feed xmlns: 'http://www.w3.org/2005/Atom', ->
       link href: "#{@config.domain}#{i.path}"
       id "#{@config.domain}#{i.path}"
       title "#{ i.title }"
-      content type:"html", "#{ i.content }"
+      content type:"html", "#{ i.content_feed }"
       author ->
         name "#{ i.author }"
-      updated "#{ i.modify }"
+      updated "#{ i.modify_feed }"

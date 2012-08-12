@@ -6,7 +6,7 @@
 express = require('express')
 app = module.exports = express.createServer()
 coffeekup = require 'coffeekup'
-coffeekup.tags = coffeekup.tags.concat ["feed", "subtitle", "id", "updated", "author", "name", "rights"]
+coffeekup.tags = coffeekup.tags.concat ["feed", "subtitle", "id", "updated", "author", "name", "rights", "entry", "content"]
 
 config = require './config'
 admin_route = require('./route/admin_route')

@@ -154,11 +154,14 @@ route = module.exports = (app)->
     ctime = (new Date).getTime()
     if not path #new content
       ct_html = md pd.content
+      [ct_html, ct_menu] = helper.converthtml ct_html
       helper.update pd,
         title: helper.fetch_title ct_html
         create: ctime
         modify: ctime
         author: req.session.admin.email
+        content_html: ct_html
+        content_menu: ct_menu
         view: 0
 
     else #modify content
@@ -167,20 +170,27 @@ route = module.exports = (app)->
         throw new AdminError("invalid content")
        
       ct_html = md pd.content
+      [ct_html, ct_menu] = helper.converthtml ct_html
       helper.update opd,
         title: helper.fetch_title ct_html
         content: pd.content
+        content_html: ct_html
+        content_outline: ct_menu
         modify: ctime
       pd = opd
-      
+    
+    if not pd.id
+      helper.update pd,
+        id : Content.id()
+
+    if not pd.title
+      pd.title = pd.id
+        
     helper.net_mt pd.title, (title_en)->
       ctime = new Date
       ctime.setTime pd.create
       #TODO more userful
       pd.path = "#{ctime.getFullYear()}/#{ctime.getMonth()+1}/#{helper.title_url title_en}.html"
-      if not pd.id
-        helper.update pd,
-          id : Content.id()
       Content.put pd
       res.redirect "/admin/"
   

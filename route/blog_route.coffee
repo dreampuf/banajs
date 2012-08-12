@@ -36,11 +36,12 @@ route = module.exports = (app)->
     cs = Content.sort_by_create true
     menu = []
     for i in cs
-      ct = md(i.content)
-      [ct, amenu] = helper.converthtml ct
-      i.html = ct
+      if not i.content_html
+        ct = md(i.content)
+        [i.content_html, i.content_outline] = helper.converthtml ct
       i.ds = helper.dateds i.create
-      menu = menu.concat amenu
+      if i.content_outline
+        menu = menu.concat i.content_outline
 
     res.render "index",
       cs: cs
@@ -54,15 +55,15 @@ route = module.exports = (app)->
   app.get "/feed/", (req, res)->
     cs = Content.db
 
-    last_update = Math.max.apply(Math, [i.modify for i in cs])
+    last_update = Math.max.apply(Math, (i.modify for i in cs))
     _ = new Date
     _.setTime(last_update)
     last_update = _.toISOString()
 
-    entrys = []
+    entrys = (i for i in cs)
     for i in cs
-      i.content = helper.html_escape(md(i.content))
-      i.modify = helper.int2date(i.modify).toISOString()
+      i.content_feed = helper.html_escape(i.content_html)
+      i.modify_feed = helper.int2date(i.modify).toISOString()
 
     res.contentType "atom"
 
@@ -86,10 +87,11 @@ route = module.exports = (app)->
       console.log "Not Find '#{ path }'"
       return res.end()
 
-    ct = md(i.content)
-    [ct, amenu] = helper.converthtml ct
-    i.html = ct
+    #ct = md(i.content)
+    if not i.content_html
+      ct = md(i.content)
+      [i.content_html, i.content_outline] = helper.converthtml ct
     i.ds = helper.dateds i.create
     res.render "view",
       i: i
-      menu: amenu
+      menu: i.content_outline or []

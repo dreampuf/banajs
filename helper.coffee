@@ -83,8 +83,13 @@ helper = module.exports =
     if fcd.length > 0
       fcd[0].text()
     else
-      nodes = doc.find "//*"
-      ret = (i.text() for i in nodes).join("").replace(/\s+/g, "")
+      nodes = doc.find "//*[starts-with(name(), 'h') and string-length(name())=2]"
+      #console.log html, (i.name() for i in nodes when /h\d/i.test(i.name())), "\n\n"
+      #if (i.name() for i in nodes when /h\d/i.test(i.name())).length == 0
+      #  return null
+      if nodes.length == 0
+        return null
+      ret = nodes[0].text()#(i.text() for i in nodes).join("").replace(/\s+/g, "")
       if ret.length > len
         ret = "#{ ret[..len-3]}..."
       ret
@@ -169,7 +174,7 @@ helper = module.exports =
         create: ctime
 
   title_url : (title)->
-    title.trim().toLowerCase().replace(/["'\.]/g, "").replace(/[-+\s]+/g, "_")
+    title.replace(/["'\.]/g, "").trim().toLowerCase().replace(/[-+\s]+/g, "_")
 
   update: (source, obj)->
     for k, v of obj
@@ -268,7 +273,11 @@ if require.main == module #Unit Test
     , "title"
 
     assert.equal helper.fetch_title(md("""## asdasdad\r\nfsdafsadf\r\n\r\n## cccc\r\nsdfsadfsdfsadf"""))
-    , "asdasdadfsdafsadfc..."
+    , "asdasdad"
+    
+    assert.equal helper.fetch_title(md("""ppppp
+aaaaa
+fffff""")), null
 
   do ()-> #converthtml
     assert.ok helper.converthtml """<h1>简介</h1>

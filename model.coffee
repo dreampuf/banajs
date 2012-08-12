@@ -49,7 +49,10 @@ Content = new Model "Content", {
   # path
   # create
   # modify
-  # body
+  # content
+  # content_html
+  # content_outline
+  # content_feed #runtime
   # author
   sort_by_create : (desc=false)->
     smap = [1, 0, -1]

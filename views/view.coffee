@@ -2,7 +2,7 @@
 
 section id: 'content', ->
   article ->
-    text "#{@i.html}"
+    text "#{@i.content_html}"
     span class:"public-date", -> "发表于#{ @i.ds }"
 
 
@@ -14,7 +14,7 @@ script """
 
   (function() {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://bana.disqus.com/embed.js';
+      dsq.src = 'http://#{ @config.disqus }.disqus.com/embed.js';
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })(); """
 
