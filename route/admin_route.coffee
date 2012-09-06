@@ -161,7 +161,7 @@ route = module.exports = (app)->
         modify: ctime
         author: req.session.admin.email
         content_html: ct_html
-        content_menu: ct_menu
+        content_outline: ct_menu
         view: 0
 
     else #modify content
