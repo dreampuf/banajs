@@ -7,7 +7,7 @@ link rel: 'stylesheet', href: '/js/mup/set_style.css', media:'all'
 script src: "/js/mup/jquery.markitup.js"
 script src: "/js/mup/set.js"
 script src: "/js/fu/fileuploader.js"
-script src: "/js/marked/marked.min.js"
+script src: "/js/marked.min.js"
 link rel: 'stylesheet', href: '/js/fu/fileuploader.css', media:'all'
 style -> """
 #ct { overflow-y: visible; } 
