@@ -104,7 +104,7 @@ body     { padding: 15px; }
         span "男"
       dd ->
         span "年龄:"
-        span "23"
+        span "24"
       dd ->
         span "专业:"
         span "软件工程"
@@ -113,9 +113,18 @@ body     { padding: 15px; }
         a id:"mailme", "Are you spam?"
     
     pre class: "personal_experience", """
-研究方向: <br />并行处理，喜欢使用（但不仅有）multiprocess进行多进程并行开发，知道锁的好处与麻烦点，不能抑制对加速比的追求。<br />数据挖掘，对于数据充满饥渴，爬虫，格式化，存储，检索，挖掘，应用。
 
 Personal Repository: <a href="https://github.com/dreampuf/">https://github.com/dreampuf/</a>
+
+Personal Slides:  <a href="http://www.slideshare.net/dreampuf/">http://www.slideshare.net/dreampuf/</a>
+
+研究方向: <br />并行处理，喜欢使用（但不仅有）multiprocess进行多进程并行开发，知道锁的好处与麻烦点，不能抑制对加速比的追求。<br />数据挖掘，对于数据充满饥渴，爬虫，格式化，存储，检索，挖掘，应用。
+
+2012.05~2012.09: 作为Scrum Master在团队中解决各项问题，已经进行了8个Sprint。
+
+2012.08: 参加北大可视化学习班，进行为期一周的数据可视化学习。
+
+2012.05: 负责果壳长微博生成优化。
 
 2012.03~2012.04: UBB格式内容渲染为适合微博转发的组件。
 
@@ -210,12 +219,15 @@ Personal Repository: <a href="https://github.com/dreampuf/">https://github.com/d
           0
       #
       rg = new Radar document.getElementById("skillradar"),
-        "Csharp": 70
+        "Csharp": 45
         "JavaScript": 80
-        "Python": 90
+        "Python": 99
         "Algorithm": 50
         "Concurrent": 50
+        "Mining": 20
+        "Visualization": 10
       rg.draw()
+      
 
       mailme = document.getElementById "mailme"
       my_mail = "soddyque" + "@" + "gmail.com"
