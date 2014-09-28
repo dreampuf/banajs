@@ -42,7 +42,6 @@ route = module.exports = (app)->
       i.ds = helper.dateds i.create
       if i.content_outline
         menu = menu.concat i.content_outline
-    console.log menu
 
     res.render "index",
       cs: cs
